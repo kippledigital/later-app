@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Later App Icon Generator</title>
+    <style>
+        body { font-family: system-ui; padding: 20px; background: #020617; color: white; }
+        .icon-preview { margin: 20px 0; }
+        canvas { border: 1px solid #333; margin: 10px; }
+        .controls { margin: 20px 0; }
+        button { background: #0891b2; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+        .size-group { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Later App Icon Generator</h1>
+    <p>Generate PWA icons for the Later app</p>
+
+    <div class="controls">
+        <button onclick="generateIcons()">Generate All Icons</button>
+        <button onclick="downloadAll()">Download All</button>
+    </div>
+
+    <div id="iconContainer"></div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const canvases = {};
+
+        function createIcon(size, isMaskable = false) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#0891b2'); // cyan-500
+            gradient.addColorStop(1, '#1e40af'); // blue-700
+
+            if (isMaskable) {
+                // Maskable icons need extra padding
+                const padding = size * 0.1;
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+
+                // Inner circle for the actual icon
+                const radius = (size - padding * 2) / 2;
+                ctx.fillStyle = '#020617'; // slate-950
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, radius, 0, 2 * Math.PI);
+                ctx.fill();
+            } else {
+                // Regular rounded rectangle
+                ctx.fillStyle = gradient;
+                roundedRect(ctx, 0, 0, size, size, size * 0.2);
+                ctx.fill();
+            }
+
+            // Icon content - Later symbol (stylized clock/bookmark)
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = size * 0.02;
+
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const iconSize = size * 0.4;
+
+            // Draw a stylized bookmark/later symbol
+            ctx.beginPath();
+
+            // Bookmark shape
+            const bookmarkWidth = iconSize * 0.7;
+            const bookmarkHeight = iconSize;
+            const bookmarkX = centerX - bookmarkWidth / 2;
+            const bookmarkY = centerY - bookmarkHeight / 2;
+
+            ctx.moveTo(bookmarkX, bookmarkY);
+            ctx.lineTo(bookmarkX + bookmarkWidth, bookmarkY);
+            ctx.lineTo(bookmarkX + bookmarkWidth, bookmarkY + bookmarkHeight * 0.8);
+            ctx.lineTo(bookmarkX + bookmarkWidth / 2, bookmarkY + bookmarkHeight * 0.6);
+            ctx.lineTo(bookmarkX, bookmarkY + bookmarkHeight * 0.8);
+            ctx.closePath();
+            ctx.fill();
+
+            // Add a small clock indicator
+            const clockRadius = iconSize * 0.15;
+            const clockX = centerX + iconSize * 0.25;
+            const clockY = centerY - iconSize * 0.25;
+
+            ctx.beginPath();
+            ctx.arc(clockX, clockY, clockRadius, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // Clock hands
+            ctx.beginPath();
+            ctx.moveTo(clockX, clockY);
+            ctx.lineTo(clockX, clockY - clockRadius * 0.6);
+            ctx.moveTo(clockX, clockY);
+            ctx.lineTo(clockX + clockRadius * 0.4, clockY);
+            ctx.stroke();
+
+            return canvas;
+        }
+
+        function roundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        function generateIcons() {
+            const container = document.getElementById('iconContainer');
+            container.innerHTML = '';
+
+            sizes.forEach(size => {
+                const sizeGroup = document.createElement('div');
+                sizeGroup.className = 'size-group';
+                sizeGroup.innerHTML = `<h3>${size}x${size}</h3>`;
+
+                // Regular icon
+                const regularCanvas = createIcon(size, false);
+                regularCanvas.id = `icon-${size}x${size}`;
+                canvases[`icon-${size}x${size}.png`] = regularCanvas;
+                sizeGroup.appendChild(regularCanvas);
+
+                // Maskable icon (only for 192 and 512)
+                if (size === 192 || size === 512) {
+                    const maskableCanvas = createIcon(size, true);
+                    maskableCanvas.id = `icon-${size}x${size}-maskable`;
+                    canvases[`icon-${size}x${size}-maskable.png`] = maskableCanvas;
+                    sizeGroup.appendChild(maskableCanvas);
+                }
+
+                container.appendChild(sizeGroup);
+            });
+
+            // Generate shortcut icons
+            generateShortcutIcons();
+        }
+
+        function generateShortcutIcons() {
+            const shortcuts = [
+                { name: 'capture', icon: '📝', color: '#10b981' },
+                { name: 'inbox', icon: '📥', color: '#f59e0b' },
+                { name: 'library', icon: '📚', color: '#8b5cf6' }
+            ];
+
+            shortcuts.forEach(shortcut => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 192;
+                canvas.height = 192;
+                const ctx = canvas.getContext('2d');
+
+                // Background circle
+                ctx.fillStyle = shortcut.color;
+                ctx.beginPath();
+                ctx.arc(96, 96, 80, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Icon (emoji for now - in production would use proper icons)
+                ctx.fillStyle = 'white';
+                ctx.font = '80px system-ui';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(shortcut.icon, 96, 96);
+
+                canvas.id = `shortcut-${shortcut.name}`;
+                canvases[`shortcut-${shortcut.name}.png`] = canvas;
+
+                const container = document.getElementById('iconContainer');
+                const shortcutGroup = document.createElement('div');
+                shortcutGroup.innerHTML = `<h3>Shortcut: ${shortcut.name}</h3>`;
+                shortcutGroup.appendChild(canvas);
+                container.appendChild(shortcutGroup);
+            });
+        }
+
+        function downloadAll() {
+            Object.keys(canvases).forEach(filename => {
+                const canvas = canvases[filename];
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        // Generate icons on load
+        generateIcons();
+    </script>
+</body>
+</html>

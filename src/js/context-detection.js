@@ -5,12 +5,33 @@ class ContextDetectionManager {
     this.behaviorHistory = this.loadBehaviorHistory();
     this.currentContext = this.detectCurrentContext();
     this.initialized = false;
+
+    // Initialize enhanced intelligence system
+    this.suggestionCoordinator = null;
+    this.enhancedMode = false;
   }
 
   init() {
     if (this.initialized) return;
     this.startContextTracking();
+    this.initializeEnhancedIntelligence();
     this.initialized = true;
+  }
+
+  // Initialize the enhanced suggestion system
+  initializeEnhancedIntelligence() {
+    try {
+      // Check if enhanced modules are available
+      if (typeof SuggestionCoordinator !== 'undefined') {
+        this.suggestionCoordinator = new SuggestionCoordinator();
+        this.suggestionCoordinator.init();
+        this.enhancedMode = true;
+        console.log('Enhanced suggestion intelligence activated');
+      }
+    } catch (error) {
+      console.warn('Enhanced intelligence not available, using basic recommendations:', error.message);
+      this.enhancedMode = false;
+    }
   }
 
   // Detect current context based on time, day, and patterns
@@ -59,6 +80,32 @@ class ContextDetectionManager {
   // Generate smart recommendations based on context
   generateRecommendations(items) {
     const context = this.currentContext;
+
+    // Use enhanced intelligence if available
+    if (this.enhancedMode && this.suggestionCoordinator) {
+      try {
+        const enhancedRecs = this.suggestionCoordinator.generateIntelligentRecommendations(
+          items,
+          this.behaviorHistory
+        );
+
+        // Return enhanced structure with backward compatibility
+        return {
+          attention: enhancedRecs.mightNeedAttention || this.getAttentionItems(items, context),
+          reading: enhancedRecs.continueReading || this.getReadingItems(items, context),
+          explore: enhancedRecs.explore || this.getExploreItems(items, context),
+          quickActions: enhancedRecs.quickActions || this.getQuickActions(context),
+          // New enhanced features
+          forThisMoment: enhancedRecs.forThisMoment,
+          meta: enhancedRecs.meta
+        };
+      } catch (error) {
+        console.warn('Enhanced recommendations failed, falling back to basic:', error.message);
+        this.enhancedMode = false;
+      }
+    }
+
+    // Fallback to original basic recommendations
     const recommendations = {
       attention: this.getAttentionItems(items, context),
       reading: this.getReadingItems(items, context),
@@ -71,16 +118,26 @@ class ContextDetectionManager {
 
   getAttentionItems(items, context) {
     const inboxItems = items.filter(item => item.state === 'inbox');
-    
+
+    // Get items needing urgent attention
+    const urgentItems = dataManager.getItemsNeedingAttention();
+    const urgentItemIds = new Set(urgentItems.map(item => item.id));
+
     // Prioritize by urgency and context
     return inboxItems
       .map(item => ({
         ...item,
         priority: this.calculatePriority(item, context),
-        reason: this.getAttentionReason(item, context)
+        reason: this.getAttentionReason(item, context),
+        isUrgent: urgentItemIds.has(item.id)
       }))
-      .sort((a, b) => b.priority - a.priority)
-      .slice(0, 3); // Show top 3
+      .sort((a, b) => {
+        // Urgent items first
+        if (a.isUrgent && !b.isUrgent) return -1;
+        if (!a.isUrgent && b.isUrgent) return 1;
+        return b.priority - a.priority;
+      })
+      .slice(0, 5); // Show top 5, including urgent items
   }
 
   getReadingItems(items, context) {
@@ -113,43 +170,126 @@ class ContextDetectionManager {
 
   getQuickActions(context) {
     const actions = [];
-    
-    // Time-based quick actions
-    switch (context.timeOfDay) {
-      case 'morning':
-        actions.push({
-          id: 'morning-focus',
-          title: 'Set today\'s focus',
-          description: 'Choose one thing to prioritize today',
-          icon: 'target',
-          action: 'capture',
-          category: 'work'
-        });
-        break;
-      case 'afternoon':
-        actions.push({
-          id: 'afternoon-break',
-          title: 'Take a mindful break',
-          description: 'Save something inspiring for later',
-          icon: 'heart',
-          action: 'capture',
-          category: 'life'
-        });
-        break;
-      case 'evening':
-        actions.push({
-          id: 'evening-wind-down',
-          title: 'Wind down reading',
-          description: 'Find something calming to read',
-          icon: 'book-open',
-          action: 'library',
-          filter: 'inspiration'
-        });
-        break;
+
+    // Check for urgent items that need immediate attention
+    const urgentEmails = dataManager.getEmailsNeedingReply();
+    const upcomingEvents = dataManager.getUpcomingEvents(1); // Next 24 hours
+    const overdueTasks = dataManager.getOverdueTasks();
+
+    // Urgent email action
+    if (urgentEmails.length > 0) {
+      actions.push({
+        id: 'urgent-emails',
+        title: `${urgentEmails.length} email${urgentEmails.length !== 1 ? 's' : ''} need reply`,
+        description: 'Quick responses to important emails',
+        icon: 'mail',
+        action: 'filter-emails',
+        urgent: true
+      });
+    }
+
+    // Upcoming events action
+    if (upcomingEvents.length > 0 && context.timeOfDay === 'morning') {
+      const nextEvent = upcomingEvents[0];
+      const eventTime = nextEvent.typeData.eventTime || 'TBD';
+      actions.push({
+        id: 'upcoming-events',
+        title: `Event today: ${nextEvent.title}`,
+        description: `${eventTime} - Prepare or get directions`,
+        icon: 'calendar',
+        action: 'view-event',
+        itemId: nextEvent.id
+      });
+    }
+
+    // Overdue tasks action
+    if (overdueTasks.length > 0) {
+      actions.push({
+        id: 'overdue-tasks',
+        title: `${overdueTasks.length} overdue task${overdueTasks.length !== 1 ? 's' : ''}`,
+        description: 'Catch up on important deadlines',
+        icon: 'alert-triangle',
+        action: 'filter-overdue',
+        urgent: true
+      });
+    }
+
+    // Time-based quick actions (if no urgent items)
+    if (actions.length === 0) {
+      switch (context.timeOfDay) {
+        case 'morning':
+          // Check for emails that came in overnight
+          const recentEmails = dataManager.getItemsByType('email')
+            .filter(email => {
+              const receivedTime = new Date(email.typeData.receivedAt);
+              const hoursSince = (Date.now() - receivedTime) / (1000 * 60 * 60);
+              return hoursSince < 12; // Last 12 hours
+            });
+
+          if (recentEmails.length > 0) {
+            actions.push({
+              id: 'morning-emails',
+              title: `${recentEmails.length} new email${recentEmails.length !== 1 ? 's' : ''}`,
+              description: 'Review overnight messages',
+              icon: 'mail',
+              action: 'filter-recent-emails'
+            });
+          } else {
+            actions.push({
+              id: 'morning-focus',
+              title: 'Set today\'s focus',
+              description: 'Choose one thing to prioritize today',
+              icon: 'target',
+              action: 'capture',
+              category: 'work'
+            });
+          }
+          break;
+
+        case 'afternoon':
+          actions.push({
+            id: 'afternoon-break',
+            title: 'Take a mindful break',
+            description: 'Save something inspiring for later',
+            icon: 'heart',
+            action: 'capture',
+            category: 'life'
+          });
+          break;
+
+        case 'evening':
+          // Check for tomorrow's events
+          const tomorrowEvents = dataManager.getUpcomingEvents(1).filter(event => {
+            const eventDate = new Date(event.typeData.eventDate);
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            return eventDate.toDateString() === tomorrow.toDateString();
+          });
+
+          if (tomorrowEvents.length > 0) {
+            actions.push({
+              id: 'tomorrow-prep',
+              title: 'Prepare for tomorrow',
+              description: `${tomorrowEvents.length} event${tomorrowEvents.length !== 1 ? 's' : ''} scheduled`,
+              icon: 'calendar-check',
+              action: 'review-tomorrow'
+            });
+          } else {
+            actions.push({
+              id: 'evening-wind-down',
+              title: 'Wind down reading',
+              description: 'Find something calming to read',
+              icon: 'book-open',
+              action: 'library',
+              filter: 'inspiration'
+            });
+          }
+          break;
+      }
     }
 
     // First visit of the day
-    if (context.isFirstVisit) {
+    if (context.isFirstVisit && actions.length < 2) {
       actions.unshift({
         id: 'daily-check-in',
         title: 'Good morning!',
@@ -424,6 +564,32 @@ class ContextDetectionManager {
 
   trackAction(action, itemId) {
     this.trackUserAction(action, itemId, this.currentContext);
+
+    // Also track in enhanced system if available
+    if (this.enhancedMode && this.suggestionCoordinator) {
+      try {
+        this.suggestionCoordinator.trackSuggestionInteraction(
+          action,
+          itemId,
+          'general',
+          this.currentContext
+        );
+      } catch (error) {
+        console.warn('Enhanced tracking failed:', error.message);
+      }
+    }
+  }
+
+  // New methods to expose enhanced features
+  getMomentInfo() {
+    if (this.enhancedMode && this.suggestionCoordinator) {
+      return this.suggestionCoordinator.getCurrentMomentInfo();
+    }
+    return null;
+  }
+
+  isEnhancedModeActive() {
+    return this.enhancedMode;
   }
 }
 

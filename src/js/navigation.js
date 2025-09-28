@@ -2,7 +2,7 @@
 class NavigationManager {
   constructor() {
     this.currentScreen = 'now';
-    this.screens = ['now', 'inbox', 'library'];
+    this.screens = ['now', 'inbox', 'collections', 'library'];
     this.initialized = false;
   }
 
@@ -116,6 +116,14 @@ class NavigationManager {
       case 'inbox':
         if (window.appManager) {
           window.appManager.renderInboxScreen();
+        }
+        break;
+      case 'collections':
+        if (window.collectionsView) {
+          window.collectionsView.renderCollectionsScreen();
+        }
+        if (window.collectionsManager) {
+          window.collectionsManager.updateSmartLists();
         }
         break;
       case 'library':

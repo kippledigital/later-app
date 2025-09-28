@@ -6,12 +6,31 @@ class ItemManager {
       life: 'heart',
       inspiration: 'sparkles'
     };
-    
+
     this.categoryColors = {
       work: 'cyan',
       life: 'emerald',
       inspiration: 'purple'
     };
+
+    // Enhanced mode with card factory
+    this.enhancedMode = false;
+    this.cardFactory = null;
+    this.initializeEnhancedCards();
+  }
+
+  // Initialize enhanced card system
+  initializeEnhancedCards() {
+    try {
+      if (typeof CardFactory !== 'undefined') {
+        this.cardFactory = new CardFactory();
+        this.enhancedMode = true;
+        console.log('Enhanced card rendering activated');
+      }
+    } catch (error) {
+      console.warn('Enhanced cards not available, using basic rendering:', error.message);
+      this.enhancedMode = false;
+    }
   }
 
   // Render items in a container
@@ -34,7 +53,13 @@ class ItemManager {
   // Create individual item element
   createItemElement(item, type) {
     const div = document.createElement('div');
-    
+
+    // Use enhanced cards if available
+    if (this.enhancedMode && this.cardFactory && (item.type !== 'article' || type === 'library')) {
+      return this.createEnhancedItemElement(item, type);
+    }
+
+    // Fallback to original rendering
     if (type === 'inbox') {
       div.className = 'swipe-item group relative rounded-xl overflow-hidden';
       div.dataset.id = item.id;
@@ -46,8 +71,264 @@ class ItemManager {
       div.dataset.cat = item.category;
       div.innerHTML = this.createLibraryItemHTML(item);
     }
-    
+
     return div;
+  }
+
+  // Create enhanced item element using card factory
+  createEnhancedItemElement(item, type) {
+    const div = document.createElement('div');
+
+    if (type === 'inbox') {
+      // For inbox items, wrap the enhanced card in swipe container
+      div.className = 'swipe-item group relative rounded-xl overflow-hidden';
+      div.dataset.id = item.id;
+
+      const enhancedCard = this.cardFactory.createCard(item, { containerType: 'inbox' });
+
+      div.innerHTML = `
+        <!-- Swipe indicators -->
+        <div class="swipe-indicators absolute inset-0 flex items-center justify-between px-4 pointer-events-none z-10">
+          <div class="flex items-center gap-2 opacity-0 group-[.swiping-right]:opacity-100 transition-all duration-200 transform group-[.swiping-right]:translate-x-2">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <i data-lucide="tag" class="w-4 h-4 text-emerald-300"></i>
+            </div>
+            <span class="text-[12px] font-medium text-emerald-300">Categorize</span>
+          </div>
+          <div class="flex items-center gap-2 opacity-0 group-[.swiping-left]:opacity-100 transition-all duration-200 transform group-[.swiping-left]:-translate-x-2">
+            <span class="text-[12px] font-medium text-rose-300">Archive</span>
+            <div class="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center">
+              <i data-lucide="trash-2" class="w-4 h-4 text-rose-300"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enhanced card content -->
+        <div class="card-content relative">
+          ${enhancedCard}
+        </div>
+      `;
+
+      this.setupSwipeGestures(div, item);
+    } else {
+      // For library items, use enhanced card directly
+      div.innerHTML = this.cardFactory.createCard(item, { containerType: 'library' });
+      div.dataset.id = item.id;
+      div.dataset.cat = item.category;
+    }
+
+    // Setup enhanced event listeners for new action buttons
+    this.setupEnhancedEventListeners(div, item);
+
+    return div;
+  }
+
+  // Setup event listeners for enhanced card actions
+  setupEnhancedEventListeners(element, item) {
+    // Task completion checkbox
+    const taskCompleteBtn = element.querySelector('.task-complete-btn');
+    if (taskCompleteBtn) {
+      taskCompleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.handleTaskComplete(item.id);
+      });
+    }
+
+    // Action buttons
+    const actionButtons = element.querySelectorAll('[data-action]');
+    actionButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = button.getAttribute('data-action');
+        const itemId = button.getAttribute('data-item-id');
+        this.handleEnhancedAction(action, itemId, item);
+      });
+    });
+
+    // Card click to open/read
+    const cardElement = element.querySelector('.card-item');
+    if (cardElement) {
+      cardElement.addEventListener('click', () => {
+        this.handleItemClick(item);
+      });
+    }
+  }
+
+  // Handle enhanced action buttons
+  handleEnhancedAction(action, itemId, item) {
+    console.log(`Enhanced action: ${action} for item ${itemId}`);
+
+    switch (action) {
+      case 'read':
+        this.openReader(item);
+        break;
+      case 'reply':
+        this.handleEmailReply(itemId);
+        break;
+      case 'archive':
+        this.archiveItem(itemId);
+        break;
+      case 'rsvp-yes':
+        this.handleEventRSVP(itemId, 'accepted');
+        break;
+      case 'rsvp-maybe':
+        this.handleEventRSVP(itemId, 'tentative');
+        break;
+      case 'add-calendar':
+        this.addEventToCalendar(itemId);
+        break;
+      case 'directions':
+        this.getDirections(item);
+        break;
+      case 'start-task':
+        this.startTask(itemId);
+        break;
+      case 'schedule-task':
+        this.scheduleTask(itemId);
+        break;
+      case 'bookmark':
+        this.toggleBookmark(itemId);
+        break;
+      case 'open-email':
+        this.openEmailExternal(item);
+        break;
+      default:
+        console.warn(`Unknown action: ${action}`);
+    }
+
+    // Track action for analytics
+    if (window.contextDetectionManager) {
+      window.contextDetectionManager.trackAction(action, itemId);
+    }
+  }
+
+  // Enhanced action handlers
+  handleTaskComplete(itemId) {
+    if (dataManager.completeTask(itemId)) {
+      this.showFeedback('Task completed!', 'success');
+      this.refreshCurrentView();
+    }
+  }
+
+  handleEmailReply(itemId) {
+    if (dataManager.markEmailReplied(itemId)) {
+      this.showFeedback('Marked as replied', 'success');
+      this.refreshCurrentView();
+    }
+  }
+
+  handleEventRSVP(itemId, status) {
+    if (dataManager.updateEventRSVP(itemId, status)) {
+      this.showFeedback(`RSVP: ${status}`, 'success');
+      this.refreshCurrentView();
+    }
+  }
+
+  addEventToCalendar(itemId) {
+    const item = dataManager.getItem(itemId);
+    if (item && item.type === 'event') {
+      // Create calendar event URL (Google Calendar format)
+      const eventDate = item.typeData.eventDate;
+      const eventTime = item.typeData.eventTime || '00:00';
+      const endTime = item.typeData.endTime || '01:00';
+
+      const startDateTime = `${eventDate}T${eventTime}:00`;
+      const endDateTime = `${eventDate}T${endTime}:00`;
+
+      const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${startDateTime.replace(/[-:]/g, '')}/${endDateTime.replace(/[-:]/g, '')}&location=${encodeURIComponent(item.typeData.location || '')}&details=${encodeURIComponent(item.content || '')}`;
+
+      window.open(calendarUrl, '_blank');
+      this.showFeedback('Opening calendar...', 'info');
+    }
+  }
+
+  getDirections(item) {
+    if (item.typeData?.location) {
+      const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(item.typeData.location)}`;
+      window.open(mapsUrl, '_blank');
+      this.showFeedback('Opening directions...', 'info');
+    }
+  }
+
+  startTask(itemId) {
+    dataManager.updateTypeData(itemId, { status: 'in-progress' });
+    this.showFeedback('Task started!', 'success');
+    this.refreshCurrentView();
+  }
+
+  scheduleTask(itemId) {
+    // For now, just show a message. In the future, integrate with calendar
+    this.showFeedback('Task scheduling coming soon!', 'info');
+  }
+
+  openEmailExternal(item) {
+    if (item.typeData?.senderEmail) {
+      const mailtoUrl = `mailto:${item.typeData.senderEmail}?subject=Re: ${encodeURIComponent(item.typeData.subject)}`;
+      window.location.href = mailtoUrl;
+    }
+  }
+
+  archiveItem(itemId) {
+    if (dataManager.moveItem(itemId, 'library')) {
+      this.showFeedback('Item archived', 'success');
+      this.refreshCurrentView();
+    }
+  }
+
+  toggleBookmark(itemId) {
+    const item = dataManager.getItem(itemId);
+    if (item) {
+      dataManager.updateItem(itemId, { bookmarked: !item.bookmarked });
+      this.showFeedback(item.bookmarked ? 'Bookmark removed' : 'Bookmarked!', 'success');
+    }
+  }
+
+  handleItemClick(item) {
+    if (item.type === 'article' && item.url) {
+      this.openReader(item);
+    } else if (item.type === 'email') {
+      this.openEmailExternal(item);
+    } else if (item.type === 'event') {
+      this.addEventToCalendar(item.id);
+    } else if (item.type === 'task') {
+      this.startTask(item.id);
+    }
+  }
+
+  openReader(item) {
+    if (window.readerManager) {
+      window.readerManager.openArticle(item.url, item.title);
+    }
+  }
+
+  showFeedback(message, type = 'info') {
+    // Create and show a feedback toast
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+      type === 'success' ? 'bg-green-500/90 text-white' :
+      type === 'error' ? 'bg-red-500/90 text-white' :
+      'bg-slate-800/90 text-slate-200'
+    }`;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
+  }
+
+  refreshCurrentView() {
+    // Trigger a refresh of the current view
+    if (window.navigationManager) {
+      window.navigationManager.refreshCurrentScreen();
+    }
   }
 
   // Create inbox item HTML

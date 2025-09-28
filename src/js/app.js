@@ -18,6 +18,23 @@ class AppManager {
       addDemoBtn.addEventListener('click', () => this.addDemoItem());
     }
 
+    // Add temporary clear and demo button (for debugging)
+    const demoBtn = document.getElementById('addDemoBtn');
+    if (demoBtn) {
+      // Add shift+click to clear and add fresh demo items
+      demoBtn.addEventListener('click', (e) => {
+        if (e.shiftKey) {
+          this.clearAndAddDemoItems();
+        }
+      });
+    }
+
+    // Enhanced demo button for new item types
+    const addEnhancedDemoBtn = document.getElementById('addEnhancedDemoBtn');
+    if (addEnhancedDemoBtn) {
+      addEnhancedDemoBtn.addEventListener('click', () => this.addEnhancedDemoItems());
+    }
+
     // Search button
     const openSearchBtn = document.getElementById('openSearchBtn');
     if (openSearchBtn) {
@@ -38,6 +55,12 @@ class AppManager {
 
     // Empty state buttons
     this.setupEmptyStateButtons();
+
+    // Smart select button
+    const smartSelectBtn = document.getElementById('smartSelectBtn');
+    if (smartSelectBtn) {
+      smartSelectBtn.addEventListener('click', () => this.toggleSmartSelectMode());
+    }
   }
 
   setupEmptyStateButtons() {
@@ -422,6 +445,48 @@ class AppManager {
   }
 
   // Action methods
+  // Clear storage and add fresh demo items
+  clearAndAddDemoItems() {
+    localStorage.clear();
+    console.log('Cleared localStorage');
+
+    // Add multiple demo items with images
+    const demoItems = [
+      {
+        title: 'The Art of Calm Technology',
+        content: 'How to design interfaces that respect attention and blend into daily life',
+        url: 'http://localhost:8080/test-article.html',
+        category: 'inspiration',
+        state: 'library',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop',
+        favicon: 'https://www.calmtech.com/favicon.ico'
+      },
+      {
+        title: 'Building Sustainable Digital Habits',
+        content: 'Practical strategies for creating a healthier relationship with technology in our always-connected world',
+        url: 'http://localhost:8080/test-article-2.html',
+        category: 'life',
+        state: 'inbox',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=250&fit=crop',
+        favicon: 'https://example.com/favicon.ico'
+      }
+    ];
+
+    // Add all demo items
+    demoItems.forEach(item => {
+      console.log('Adding demo item with image:', item.title, item.imageUrl);
+      window.dataManager.saveItem(item);
+    });
+
+    // Refresh current screen
+    const currentScreen = window.navigationManager.getCurrentScreen();
+    window.navigationManager.onScreenChange(currentScreen);
+
+    this.showFeedback('Added fresh demo items with images!', 'success');
+  }
+
   addDemoItem() {
     const demoItems = [
       {
@@ -439,32 +504,93 @@ class AppManager {
       {
         title: 'The Art of Calm Technology',
         content: 'How to design interfaces that respect attention and blend into daily life',
-        url: 'https://medium.com/@ambercase/calm-technology-7be4818e62f5',
+        url: 'http://localhost:8080/test-article.html',
         category: 'inspiration',
-        state: 'library'
+        state: 'library',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop',
+        favicon: 'https://www.calmtech.com/favicon.ico'
+      },
+      {
+        title: 'Building Sustainable Digital Habits',
+        content: 'Practical strategies for creating a healthier relationship with technology in our always-connected world',
+        url: 'http://localhost:8080/test-article-2.html',
+        category: 'life',
+        state: 'inbox',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&h=250&fit=crop',
+        favicon: 'https://example.com/favicon.ico'
       },
       {
         title: 'Building Better Habits',
         content: 'A gentle guide to creating routines that stick without guilt or pressure',
         url: 'https://jamesclear.com/atomic-habits',
         category: 'inspiration',
-        state: 'library'
+        state: 'library',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=400&h=250&fit=crop',
+        favicon: 'https://jamesclear.com/favicon.ico'
       },
       {
         title: 'Minimalist Design Principles',
         content: 'Creating beautiful, functional interfaces with less',
         url: 'https://www.interaction-design.org/literature/article/minimalism-in-design',
         category: 'work',
-        state: 'library'
+        state: 'library',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=400&h=250&fit=crop',
+        favicon: 'https://www.interaction-design.org/favicon.ico'
       }
     ];
     
     const randomItem = demoItems[Math.floor(Math.random() * demoItems.length)];
     window.dataManager.saveItem(randomItem);
-    
+
     // Refresh current screen
     const currentScreen = window.navigationManager.getCurrentScreen();
     window.navigationManager.onScreenChange(currentScreen);
+  }
+
+  // Add enhanced demo items (emails, events, tasks)
+  addEnhancedDemoItems() {
+    try {
+      if (window.mockDataGenerator) {
+        const mockItems = window.mockDataGenerator.addMockDataToStorage();
+
+        // Show feedback
+        this.showFeedback(`Added ${mockItems.length} demo items (emails, events, tasks)!`, 'success');
+
+        // Refresh current screen
+        const currentScreen = window.navigationManager.getCurrentScreen();
+        window.navigationManager.onScreenChange(currentScreen);
+      } else {
+        this.showFeedback('Enhanced demo data not available', 'error');
+      }
+    } catch (error) {
+      console.error('Error adding enhanced demo items:', error);
+      this.showFeedback('Error adding demo items', 'error');
+    }
+  }
+
+  showFeedback(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+      type === 'success' ? 'bg-green-500/90 text-white' :
+      type === 'error' ? 'bg-red-500/90 text-white' :
+      'bg-slate-800/90 text-slate-200'
+    }`;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
   }
 
   handleQuickAction(actionId) {
@@ -521,14 +647,19 @@ class AppManager {
     console.log('openItem called with id:', id);
     const item = window.dataManager.getItem(id);
     console.log('Found item:', item);
-    
+
     if (item && item.url) {
       console.log('Item has URL, opening reader...');
       // Track the action
       if (window.contextDetectionManager) {
         window.contextDetectionManager.trackAction('read', id);
       }
-      
+
+      // Track reading session for insights
+      if (window.insightsTracker) {
+        window.insightsTracker.trackReadingSession(item);
+      }
+
       // Open in reader overlay
       if (window.readerManager) {
         console.log('Reader manager found, opening reader...');
@@ -548,9 +679,47 @@ class AppManager {
     if (window.contextDetectionManager) {
       window.contextDetectionManager.trackAction('update_progress', id);
     }
-    
+
     window.dataManager.updateItemProgress(id, progress);
     this.renderNowScreen();
+  }
+
+  toggleSmartSelectMode() {
+    const smartSelectOptions = document.getElementById('smartSelectOptions');
+    const smartSelectBtn = document.getElementById('smartSelectBtn');
+
+    if (!smartSelectOptions || !smartSelectBtn) return;
+
+    if (smartSelectOptions.classList.contains('hidden')) {
+      // Show smart select options
+      smartSelectOptions.classList.remove('hidden');
+      smartSelectBtn.innerHTML = `
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        Cancel
+      `;
+
+      // Enter multi-select mode
+      if (window.bulkActionsManager) {
+        window.bulkActionsManager.enterMultiSelectMode();
+      }
+    } else {
+      // Hide smart select options
+      smartSelectOptions.classList.add('hidden');
+      smartSelectBtn.innerHTML = `
+        <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+        Select
+      `;
+
+      // Exit multi-select mode
+      if (window.bulkActionsManager) {
+        window.bulkActionsManager.exitMultiSelectMode();
+      }
+    }
+
+    // Reinitialize icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
   }
 }
 
@@ -568,6 +737,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.readerManager = readerManager;
     window.contextDetectionManager = contextDetectionManager;
     window.searchManager = searchManager;
+    window.insightsTracker = insightsTracker;
+    window.insightsManager = insightsManager;
+    window.backgroundSummaryManager = backgroundSummaryManager;
+    window.bulkActionsManager = bulkActionsManager;
+    window.collectionsManager = collectionsManager;
+    window.collectionsView = collectionsView;
     
     console.log('Managers created, initializing...');
     
@@ -578,6 +753,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.readerManager.init();
     window.contextDetectionManager.init();
     window.searchManager.init();
+    window.insightsTracker.init();
+    window.insightsManager.init();
+    window.backgroundSummaryManager.init();
+    window.bulkActionsManager.init();
+    window.collectionsManager.init();
+    window.collectionsView.init();
     
     console.log('Managers initialized, creating app...');
     

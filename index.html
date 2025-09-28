@@ -4,15 +4,63 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Later — Your calm digital companion</title>
+
+<!-- PWA Meta Tags -->
+<meta name="description" content="A calm digital companion designed to help people capture, organize, and revisit the important things in their lives.">
+<meta name="theme-color" content="#0891b2">
+<meta name="background-color" content="#020617">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Later">
+<meta name="format-detection" content="telephone=no">
+
+<!-- Manifest -->
+<link rel="manifest" href="/manifest.json">
+
+<!-- Icons -->
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180x180.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-120x120.png">
+
+<!-- Microsoft Tiles -->
+<meta name="msapplication-TileColor" content="#0891b2">
+<meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+<meta name="msapplication-config" content="/browserconfig.xml">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/@mozilla/readability/Readability.js"></script>
+  <script src="src/js/ai-service.js"></script>
+  <script src="src/js/background-summary.js"></script>
   <script src="src/js/data.js"></script>
   <script src="src/js/navigation.js"></script>
   <script src="src/js/capture.js"></script>
   <script src="src/js/items.js"></script>
   <script src="src/js/enhanced-swipe.js"></script>
   <script src="src/js/reader.js"></script>
+  <!-- Enhanced suggestion system -->
+  <script src="src/js/pattern-tracker.js"></script>
+  <script src="src/js/scoring-engine.js"></script>
+  <script src="src/js/moment-detector.js"></script>
+  <script src="src/js/suggestion-coordinator.js"></script>
+  <!-- Enhanced item types -->
+  <script src="src/js/card-factory.js"></script>
+  <script src="src/js/mock-data-generator.js"></script>
   <script src="src/js/context-detection.js"></script>
+  <!-- PWA and Performance -->
+  <script src="src/js/performance-optimizer.js"></script>
+  <script src="src/js/pwa-manager.js"></script>
+  <!-- Gentle Insights -->
+  <script src="src/js/insights-tracker.js"></script>
+  <script src="src/js/gentle-visualizations.js"></script>
+  <script src="src/js/insights-manager.js"></script>
+  <!-- Bulk Actions -->
+  <script src="src/js/bulk-actions-manager.js"></script>
+  <!-- Collections -->
+  <script src="src/js/collections-manager.js"></script>
+  <script src="src/js/collections-view.js"></script>
   <script src="src/js/search.js"></script>
   <script src="src/js/app.js"></script>
 <style>
@@ -85,6 +133,101 @@
 @keyframes hapticPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(0.999); }
+}
+
+/* Insights button animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Multi-select mode styles */
+.multi-select-mode [data-id] {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.multi-select-mode [data-id]:hover {
+  transform: scale(0.98);
+  opacity: 0.8;
+}
+
+.multi-select-mode [data-id].selected {
+  transform: scale(0.95);
+  ring: 2px solid rgb(6 182 212 / 0.5);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+}
+
+.selection-indicator {
+  animation: selectionPop 0.2s ease-out;
+}
+
+@keyframes selectionPop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Batch actions animations */
+@keyframes slideUpFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Collections drag and drop styles */
+.collection-card, .collection-item {
+  transition: all 0.2s ease;
+}
+
+.collection-card:hover, .collection-item:hover {
+  transform: translateY(-2px);
+}
+
+.drop-highlight {
+  ring: 2px solid rgb(168 85 247 / 0.5);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
+  transform: scale(1.02);
+}
+
+[draggable="true"]:hover {
+  cursor: grab;
+}
+
+[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Collection progress animations */
+.collection-progress {
+  transition: all 0.3s ease;
+}
+
+/* View transition animations */
+.view-transition {
+  animation: viewFadeIn 0.3s ease-out;
+}
+
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Reader overlay styles */
@@ -262,6 +405,160 @@
 #readerOverlay .prose.text-lg {
   font-size: 1.125rem;
 }
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* PWA-specific styles */
+.pwa-installed {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Performance optimizations */
+.loaded {
+  opacity: 1 !important;
+}
+
+.error {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
+/* Virtual scrolling container */
+.virtual-scroll-container {
+  contain: layout style paint;
+  overflow-anchor: none;
+}
+
+.virtual-item-wrapper {
+  contain: layout style paint size;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .reduce-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reduce-motion .essential-animation {
+    animation-duration: revert !important;
+    transition-duration: revert !important;
+  }
+}
+
+/* Touch optimization */
+@media (hover: none) and (pointer: coarse) {
+  button, .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .bg-white\/5 {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .ring-white\/10 {
+    ring-color: rgba(255, 255, 255, 0.3) !important;
+  }
+}
+
+/* Forced colors mode support */
+@media (forced-colors: active) {
+  .bg-gradient-to-r {
+    background: ButtonFace !important;
+  }
+
+  .text-slate-300 {
+    color: ButtonText !important;
+  }
+}
+
+/* Content interaction styles */
+.reader-highlight {
+  background: rgba(251, 191, 36, 0.3);
+  border-radius: 3px;
+  padding: 2px 0;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reader-highlight:hover {
+  background: rgba(251, 191, 36, 0.4);
+}
+
+.reader-highlight.yellow { background: rgba(251, 191, 36, 0.3); }
+.reader-highlight.green { background: rgba(34, 197, 94, 0.3); }
+.reader-highlight.blue { background: rgba(59, 130, 246, 0.3); }
+.reader-highlight.purple { background: rgba(147, 51, 234, 0.3); }
+.reader-highlight.red { background: rgba(239, 68, 68, 0.3); }
+
+.reader-note-indicator {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  background: rgba(147, 51, 234, 0.9);
+  border-radius: 50%;
+  display: flex;
+  items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+.selection-active #readerOverlay {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+}
+
+.content-tools-active .reader-content {
+  padding-top: 140px; /* Account for toolbar */
+}
+
+/* Smooth transitions for view switching */
+#readerContent {
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+
+/* Swipe indicator styles */
+#swipeIndicator {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Article image loading states */
+.card-item img.loaded {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.card-item img:not(.loaded) {
+  opacity: 0.7;
+}
+
+.card-item .image-fallback {
+  display: none;
+}
+
+.card-item img[style*="display: none"] + .image-fallback {
+  display: flex !important;
+}
 </style>
 </head>
 <body class="antialiased bg-slate-950 text-slate-200 selection:bg-cyan-400/30">
@@ -290,6 +587,10 @@
             <button id="addDemoBtn" class="inline-flex items-center gap-2 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors" title="Quick add demo item">
               <i data-lucide="sparkles" class="w-4 h-4 text-cyan-300"></i>
               <span class="text-slate-300">Add</span>
+            </button>
+            <button id="addEnhancedDemoBtn" class="inline-flex items-center gap-2 text-[13px] px-2.5 py-1.5 rounded-md bg-emerald-500/15 hover:bg-emerald-500/25 ring-1 ring-emerald-500/25 transition-colors" title="Add demo emails, events & tasks">
+              <i data-lucide="zap" class="w-4 h-4 text-emerald-300"></i>
+              <span class="text-emerald-300">Demo+</span>
             </button>
             <button id="openSearchBtn" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors" title="Search">
               <i data-lucide="search" class="w-4 h-4 text-slate-300"></i>
@@ -328,10 +629,17 @@
         <!-- NOW / HOME -->
         <section id="screen-now" class="absolute inset-0 overflow-y-auto will-change-transform opacity-100 translate-y-0 transition-all duration-300">
           <div class="px-4 pt-5 pb-28">
-            <!-- Greeting -->
+            <!-- Greeting with Insights Button -->
             <div class="mb-5">
-              <p id="greeting" class="text-[28px] md:text-[32px] leading-tight tracking-tight font-semibold text-slate-100"></p>
-              <p id="contextSub" class="text-sm text-slate-400 mt-1"></p>
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <p id="greeting" class="text-[28px] md:text-[32px] leading-tight tracking-tight font-semibold text-slate-100"></p>
+                  <p id="contextSub" class="text-sm text-slate-400 mt-1"></p>
+                </div>
+                <button id="insightsBtn" class="ml-4 p-2 rounded-lg bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-all duration-300 group opacity-0 translate-y-1 animation-delay-500" style="animation: fadeInUp 0.6s ease-out 0.5s forwards;">
+                  <i data-lucide="brain" class="w-4 h-4 text-slate-400 group-hover:text-cyan-300 transition-colors"></i>
+                </button>
+              </div>
             </div>
 
             <!-- Empty State: Context-specific Now -->
@@ -447,15 +755,29 @@
                 <!-- Article 1 -->
                 <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
                   <div class="flex items-start gap-3">
-                    <img src="https://images.unsplash.com/photo-1496080174650-637e3f22fa03?q=80&w=400&auto=format&fit=crop" alt="Books and coffee" class="w-14 h-14 rounded-md object-cover ring-1 ring-white/10">
+                    <img data-src="https://images.unsplash.com/photo-1496080174650-637e3f22fa03?q=80&w=400&auto=format&fit=crop" alt="Books and coffee" class="w-14 h-14 rounded-md object-cover ring-1 ring-white/10" loading="lazy">
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 mb-1">
                         <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Read Later</span>
                         <span class="text-[11px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>5 min read</span>
                         <span class="text-[11px] text-slate-500">40% through</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/20 flex items-center gap-1">
+                          <i data-lucide="zap" class="w-3 h-3"></i>
+                          AI Summary
+                        </span>
                       </div>
-                      <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">The quiet power of consistent habits</h3>
+                      <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">The Art of Calm Technology</h3>
                       <p class="text-[13px] text-slate-400 line-clamp-2">A gentle guide to building routines that stick, without the guilt or pressure of rigid schedules.</p>
+                      <!-- TLDR Preview -->
+                      <div class="mt-2 p-2 rounded-md bg-emerald-500/5 ring-1 ring-emerald-500/10">
+                        <div class="flex items-start gap-2">
+                          <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-300 mt-0.5 shrink-0"></i>
+                          <div class="flex-1 min-w-0">
+                            <span class="text-[11px] text-emerald-300 font-medium">TL;DR</span>
+                            <p class="text-[12px] text-slate-300 leading-relaxed line-clamp-2">A thoughtful exploration of building sustainable habits that focuses on consistency over perfection, emphasizing gentle progress and self-compassion.</p>
+                          </div>
+                        </div>
+                      </div>
                       <div class="mt-3 flex items-center gap-2">
                         <button class="read-btn inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 ring-1 ring-cyan-500/25 transition-colors">
                           <i data-lucide="book-open" class="w-4 h-4"></i>
@@ -473,12 +795,16 @@
                 <!-- Article 2 -->
                 <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
                   <div class="flex items-start gap-3">
-                    <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=400&auto=format&fit=crop" alt="Laptop and desk" class="w-14 h-14 rounded-md object-cover ring-1 ring-white/10">
+                    <img data-src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=400&auto=format&fit=crop" alt="Laptop and desk" class="w-14 h-14 rounded-md object-cover ring-1 ring-white/10" loading="lazy">
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 mb-1">
                         <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Read Later</span>
                         <span class="text-[11px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>7 min read</span>
                         <span class="text-[11px] text-slate-500">12% through</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-300 ring-1 ring-amber-400/20 flex items-center gap-1">
+                          <i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i>
+                          Analyzing...
+                        </span>
                       </div>
                       <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">Designing for calm technology</h3>
                       <p class="text-[13px] text-slate-400 line-clamp-2">Principles to create interfaces that respect attention and blend into daily life.</p>
@@ -583,10 +909,40 @@
             <div class="flex items-center justify-between mb-3">
               <h1 class="text-[20px] tracking-tight font-semibold text-slate-100">Inbox</h1>
               <div class="flex items-center gap-2">
+                <button id="smartSelectBtn" class="inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
+                  <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
+                  Select
+                </button>
                 <div id="aiPill" class="hidden items-center gap-1.5 text-[12px] px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-500/20 animate-pulse">
                   <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                   <span>Organizing…</span>
                 </div>
+              </div>
+            </div>
+
+            <!-- Smart Select Options (hidden by default) -->
+            <div id="smartSelectOptions" class="hidden mb-4 p-3 rounded-xl bg-white/5 ring-1 ring-white/10">
+              <div class="flex items-center gap-2 mb-3">
+                <i data-lucide="zap" class="w-4 h-4 text-cyan-300"></i>
+                <span class="text-[14px] font-medium text-slate-200">Smart Select</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button data-smart-select="work-items" class="inline-flex items-center gap-2 text-[13px] px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
+                  <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
+                  Work items
+                </button>
+                <button data-smart-select="today-items" class="inline-flex items-center gap-2 text-[13px] px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                  From today
+                </button>
+                <button data-smart-select="quick-tasks" class="inline-flex items-center gap-2 text-[13px] px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
+                  <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                  Quick tasks
+                </button>
+                <button data-smart-select="old-items" class="inline-flex items-center gap-2 text-[13px] px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
+                  <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                  Older items
+                </button>
               </div>
             </div>
 
@@ -866,22 +1222,31 @@
             <div class="mt-6 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
           </div>
         </section>
+
+        <!-- COLLECTIONS -->
+        <section id="screen-collections" class="absolute inset-0 overflow-y-auto hidden will-change-transform opacity-0 translate-y-1 transition-all duration-300">
+          <!-- Collections content will be rendered by JavaScript -->
+        </section>
       </main>
 
       <!-- Bottom Navigation -->
       <nav class="px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 sticky bottom-0 bg-slate-950/85 backdrop-blur supports-[backdrop-filter]:bg-slate-950/70 border-t border-white/5 z-40">
-        <div class="w-full max-w-[460px] mx-auto grid grid-cols-3 gap-2">
-          <button data-nav="now" class="tab-btn inline-flex flex-col items-center gap-1 px-3 py-2 rounded-lg ring-1 ring-white/10 bg-white/5">
+        <div class="w-full max-w-[460px] mx-auto grid grid-cols-4 gap-2">
+          <button data-nav="now" class="tab-btn inline-flex flex-col items-center gap-1 px-2 py-2 rounded-lg ring-1 ring-white/10 bg-white/5">
             <i data-lucide="home" class="w-4 h-4 text-cyan-300"></i>
-            <span class="text-[12px] text-slate-300">Now</span>
+            <span class="text-[11px] text-slate-300">Now</span>
           </button>
-          <button data-nav="inbox" class="tab-btn inline-flex flex-col items-center gap-1 px-3 py-2 rounded-lg ring-1 ring-white/10 bg-white/0 hover:bg-white/5 transition">
+          <button data-nav="inbox" class="tab-btn inline-flex flex-col items-center gap-1 px-2 py-2 rounded-lg ring-1 ring-white/10 bg-white/0 hover:bg-white/5 transition">
             <i data-lucide="inbox" class="w-4 h-4 text-slate-300"></i>
-            <span class="text-[12px] text-slate-300">Inbox</span>
+            <span class="text-[11px] text-slate-300">Inbox</span>
           </button>
-          <button data-nav="library" class="tab-btn inline-flex flex-col items-center gap-1 px-3 py-2 rounded-lg ring-1 ring-white/10 bg-white/0 hover:bg-white/5 transition">
+          <button data-nav="collections" class="tab-btn inline-flex flex-col items-center gap-1 px-2 py-2 rounded-lg ring-1 ring-white/10 bg-white/0 hover:bg-white/5 transition">
+            <i data-lucide="folder" class="w-4 h-4 text-slate-300"></i>
+            <span class="text-[11px] text-slate-300">Collections</span>
+          </button>
+          <button data-nav="library" class="tab-btn inline-flex flex-col items-center gap-1 px-2 py-2 rounded-lg ring-1 ring-white/10 bg-white/0 hover:bg-white/5 transition">
             <i data-lucide="library" class="w-4 h-4 text-slate-300"></i>
-            <span class="text-[12px] text-slate-300">Library</span>
+            <span class="text-[11px] text-slate-300">Library</span>
           </button>
         </div>
       </nav>
@@ -1023,6 +1388,13 @@
           <p id="readerUrl" class="text-[12px] text-slate-400 truncate"></p>
         </div>
         <div class="flex items-center gap-2">
+          <!-- Summary/Full Toggle -->
+          <div id="summaryToggle" class="hidden items-center gap-1 text-[12px] px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-500/20">
+            <button id="toggleSummary" class="inline-flex items-center gap-1">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+              <span id="toggleText">Summary</span>
+            </button>
+          </div>
           <button id="readerTheme" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors">
             <i data-lucide="sun" class="w-4 h-4 text-slate-300"></i>
           </button>
@@ -1044,6 +1416,32 @@
       <!-- Progress Bar -->
       <div class="h-1 bg-slate-800">
         <div id="readerProgress" class="h-full bg-gradient-to-r from-cyan-400 to-blue-400 transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Content Tools Toolbar -->
+    <div id="contentToolbar" class="hidden sticky top-[69px] z-10 px-4 py-2 bg-slate-950/95 backdrop-blur border-b border-white/10">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button id="highlightTool" class="inline-flex items-center gap-1 text-[12px] px-2 py-1 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 ring-1 ring-amber-500/25 transition-colors">
+            <i data-lucide="highlighter" class="w-3.5 h-3.5"></i>
+            Highlight
+          </button>
+          <button id="noteTool" class="inline-flex items-center gap-1 text-[12px] px-2 py-1 rounded-md bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 ring-1 ring-purple-500/25 transition-colors">
+            <i data-lucide="sticky-note" class="w-3.5 h-3.5"></i>
+            Note
+          </button>
+          <button id="copyTool" class="inline-flex items-center gap-1 text-[12px] px-2 py-1 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 ring-1 ring-cyan-500/25 transition-colors">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            Copy
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="selectionInfo" class="text-[11px] text-slate-400"></span>
+          <button id="clearSelection" class="inline-flex items-center justify-center w-6 h-6 rounded text-slate-400 hover:text-slate-300 hover:bg-white/5 transition-colors">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1072,6 +1470,77 @@
           </button>
         </div>
 
+        <!-- AI Summary Loading -->
+        <div id="summaryLoading" class="hidden flex flex-col items-center justify-center py-12">
+          <div class="w-12 h-12 rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="sparkles" class="w-6 h-6 text-cyan-300 animate-pulse"></i>
+          </div>
+          <h3 class="text-[16px] font-medium text-slate-100 mb-2">Generating Summary</h3>
+          <p class="text-[14px] text-slate-400 text-center mb-6">AI is analyzing the article to create your summary...</p>
+          <div class="flex items-center gap-3">
+            <button id="summaryLoadingOriginal" class="inline-flex items-center gap-1.5 text-[13px] px-3 py-2 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
+              <i data-lucide="external-link" class="w-4 h-4"></i>
+              Open Original
+            </button>
+            <span class="text-[12px] text-slate-500">or wait for summary</span>
+          </div>
+        </div>
+
+        <!-- Summary Content -->
+        <div id="readerSummary" class="hidden">
+          <!-- TLDR Section -->
+          <div class="mb-8">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 rounded-md bg-cyan-500/10 ring-1 ring-cyan-500/20 flex items-center justify-center">
+                <i data-lucide="zap" class="w-4 h-4 text-cyan-300"></i>
+              </div>
+              <h2 class="text-[18px] font-semibold text-slate-100">TL;DR</h2>
+            </div>
+            <div id="summaryTldr" class="text-[15px] text-slate-300 leading-relaxed bg-white/5 ring-1 ring-white/10 rounded-lg p-4">
+              <!-- TLDR content will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Key Points Section -->
+          <div class="mb-8">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 rounded-md bg-emerald-500/10 ring-1 ring-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="list" class="w-4 h-4 text-emerald-300"></i>
+              </div>
+              <h2 class="text-[18px] font-semibold text-slate-100">Key Points</h2>
+            </div>
+            <ul id="summaryKeyPoints" class="space-y-2">
+              <!-- Key points will be inserted here -->
+            </ul>
+          </div>
+
+          <!-- Core Ideas Section -->
+          <div class="mb-8">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 rounded-md bg-purple-500/10 ring-1 ring-purple-500/20 flex items-center justify-center">
+                <i data-lucide="brain" class="w-4 h-4 text-purple-300"></i>
+              </div>
+              <h2 class="text-[18px] font-semibold text-slate-100">Core Ideas</h2>
+            </div>
+            <div id="summaryCoreIdeas" class="text-[15px] text-slate-300 leading-relaxed space-y-4">
+              <!-- Core ideas content will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Key Quotes Section -->
+          <div class="mb-8">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-8 h-8 rounded-md bg-amber-500/10 ring-1 ring-amber-500/20 flex items-center justify-center">
+                <i data-lucide="quote" class="w-4 h-4 text-amber-300"></i>
+              </div>
+              <h2 class="text-[18px] font-semibold text-slate-100">Key Quotes</h2>
+            </div>
+            <div id="summaryQuotes" class="space-y-3">
+              <!-- Key quotes will be inserted here -->
+            </div>
+          </div>
+        </div>
+
         <!-- Article Content -->
         <div id="readerArticle" class="hidden prose prose-slate prose-invert max-w-none">
           <!-- Article content will be loaded here -->
@@ -1082,15 +1551,101 @@
     <!-- Reader Footer -->
     <div class="reader-footer fixed bottom-0 left-0 right-0 z-10 bg-slate-950/95 backdrop-blur border-t border-white/10">
       <div class="flex items-center justify-between px-4 py-3">
-        <div class="flex items-center gap-2">
-          <span class="text-[12px] text-slate-400">Reading time:</span>
-          <span id="readerTime" class="text-[12px] text-slate-300">2 min</span>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <span class="text-[12px] text-slate-400">Reading time:</span>
+            <span id="readerTime" class="text-[12px] text-slate-300">2 min</span>
+          </div>
+          <div id="summaryStats" class="hidden flex items-center gap-2">
+            <span class="text-[12px] text-slate-400">•</span>
+            <span class="text-[12px] text-slate-400">Summary:</span>
+            <span id="summaryTime" class="text-[12px] text-slate-300">1 min</span>
+          </div>
         </div>
         <div class="flex items-center gap-2">
           <button id="readerOriginal" class="inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10">
             <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
             Original
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gentle Insights Modal -->
+  <div id="insightsModal" class="hidden fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur">
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+      <div id="insightsSheet" class="w-full max-w-2xl bg-slate-950 rounded-2xl ring-1 ring-white/10 shadow-2xl translate-y-6 scale-[0.98] opacity-0 transition-all duration-300 will-change-transform overflow-hidden">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-white/5">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/20 flex items-center justify-center">
+              <i data-lucide="brain" class="w-5 h-5 text-cyan-300"></i>
+            </div>
+            <div>
+              <h2 class="text-[18px] tracking-tight font-semibold text-slate-100">Gentle Insights</h2>
+              <p class="text-[13px] text-slate-400">Understanding your patterns</p>
+            </div>
+          </div>
+          <button id="insightsClose" class="inline-flex items-center justify-center w-9 h-9 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors">
+            <i data-lucide="x" class="w-4 h-4 text-slate-200"></i>
+          </button>
+        </div>
+
+        <!-- Content -->
+        <div class="px-6 pt-4 pb-6 max-h-[70vh] overflow-y-auto">
+          <!-- Narrative Insights -->
+          <div id="narrativeInsights" class="mb-6">
+            <h3 class="text-[15px] font-medium text-slate-200 mb-3 flex items-center gap-2">
+              <i data-lucide="heart" class="w-4 h-4 text-pink-300"></i>
+              Your Story
+            </h3>
+            <div id="narrativeList" class="space-y-3">
+              <!-- Narrative insights will be populated here -->
+            </div>
+          </div>
+
+          <!-- Gentle Visualizations -->
+          <div id="insightsVisualizations" class="space-y-6">
+            <!-- Time Flow -->
+            <div class="gentle-viz-container p-4">
+              <div class="viz-title">Reading Rhythm</div>
+              <div id="timeFlowViz" class="w-full h-24"></div>
+              <div class="viz-subtitle">When you naturally engage with content</div>
+            </div>
+
+            <!-- Content Preferences -->
+            <div class="gentle-viz-container p-4">
+              <div class="viz-title">Content Harmony</div>
+              <div class="flex items-center gap-6">
+                <div id="contentPrefViz" class="w-24 h-24"></div>
+                <div class="flex-1">
+                  <div id="contentPrefLabels" class="space-y-2">
+                    <!-- Content preference labels will be populated here -->
+                  </div>
+                </div>
+              </div>
+              <div class="viz-subtitle">The mix that resonates with you</div>
+            </div>
+
+            <!-- Completion Flow -->
+            <div class="gentle-viz-container p-4">
+              <div class="viz-title">Completion Flow</div>
+              <div id="completionFlowViz" class="w-full h-16"></div>
+              <div class="viz-subtitle">Your recent journey through saved items</div>
+            </div>
+          </div>
+
+          <!-- Gentle Suggestions -->
+          <div id="gentleSuggestions" class="mt-6 pt-6 border-t border-white/5">
+            <h3 class="text-[15px] font-medium text-slate-200 mb-3 flex items-center gap-2">
+              <i data-lucide="compass" class="w-4 h-4 text-emerald-300"></i>
+              Gentle Nudges
+            </h3>
+            <div id="suggestionsList" class="space-y-3">
+              <!-- Gentle suggestions will be populated here -->
+            </div>
+          </div>
         </div>
       </div>
     </div>
