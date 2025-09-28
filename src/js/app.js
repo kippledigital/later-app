@@ -392,5 +392,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.navigationManager = navigationManager;
   window.captureManager = captureManager;
   window.itemManager = itemManager;
+  
+  // Initialize managers
+  window.navigationManager.init();
+  window.captureManager.init();
+  
+  // Then initialize the app
   window.appManager = new AppManager();
 });

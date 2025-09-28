@@ -3,12 +3,14 @@ class NavigationManager {
   constructor() {
     this.currentScreen = 'now';
     this.screens = ['now', 'inbox', 'library'];
-    this.init();
+    this.initialized = false;
   }
 
   init() {
+    if (this.initialized) return;
     this.setupEventListeners();
     this.showScreen('now');
+    this.initialized = true;
   }
 
   setupEventListeners() {

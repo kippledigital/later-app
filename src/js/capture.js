@@ -1,6 +1,21 @@
 // Quick Capture modal management
 class CaptureManager {
   constructor() {
+    this.modal = null;
+    this.form = null;
+    this.backdrop = null;
+    this.sheet = null;
+    this.closeBtn = null;
+    this.cancelBtn = null;
+    this.fabBtn = null;
+    this.selectedTag = null;
+    this.initialized = false;
+  }
+
+  init() {
+    if (this.initialized) return;
+    
+    // Get DOM elements
     this.modal = document.getElementById('captureModal');
     this.form = document.getElementById('captureForm');
     this.backdrop = document.getElementById('captureBackdrop');
@@ -8,14 +23,10 @@ class CaptureManager {
     this.closeBtn = document.getElementById('captureClose');
     this.cancelBtn = document.getElementById('capCancel');
     this.fabBtn = document.getElementById('fabCapture');
-    this.selectedTag = null;
     
-    this.init();
-  }
-
-  init() {
     this.setupEventListeners();
     this.setupTagSelection();
+    this.initialized = true;
   }
 
   setupEventListeners() {
