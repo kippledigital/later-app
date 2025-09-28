@@ -1,6 +1,6 @@
 # Later App
 
-A simple, elegant web application for saving items "for later" - your personal digital bookmark and reminder system.
+A calm digital companion designed to help people capture, organize, and revisit the important things in their lives.
 
 ## Features
 
