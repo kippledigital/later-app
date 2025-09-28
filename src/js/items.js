@@ -56,17 +56,24 @@ class ItemManager {
     const timeAgo = this.getTimeAgo(item.createdAt);
     
     return `
-      <div class="absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
-        <div class="flex items-center gap-2 opacity-0 group-[.swiping-right]:opacity-100 transition-opacity">
-          <i data-lucide="tag" class="w-4 h-4 text-emerald-300"></i>
-          <span class="text-[12px] text-emerald-300">Categorize</span>
+      <!-- Swipe indicators with enhanced visuals -->
+      <div class="swipe-indicators absolute inset-0 flex items-center justify-between px-4 pointer-events-none">
+        <div class="flex items-center gap-2 opacity-0 group-[.swiping-right]:opacity-100 transition-all duration-200 transform group-[.swiping-right]:translate-x-2">
+          <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+            <i data-lucide="tag" class="w-4 h-4 text-emerald-300"></i>
+          </div>
+          <span class="text-[12px] font-medium text-emerald-300">Categorize</span>
         </div>
-        <div class="flex items-center gap-2 opacity-0 group-[.swiping-left]:opacity-100 transition-opacity">
-          <span class="text-[12px] text-rose-300">Archive</span>
-          <i data-lucide="trash-2" class="w-4 h-4 text-rose-300"></i>
+        <div class="flex items-center gap-2 opacity-0 group-[.swiping-left]:opacity-100 transition-all duration-200 transform group-[.swiping-left]:-translate-x-2">
+          <span class="text-[12px] font-medium text-rose-300">Archive</span>
+          <div class="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center">
+            <i data-lucide="trash-2" class="w-4 h-4 text-rose-300"></i>
+          </div>
         </div>
       </div>
-      <div class="card-content relative bg-white/5 ring-1 ring-white/10 p-3 transition-transform duration-300 ease-out cursor-pointer">
+      
+      <!-- Card content with enhanced styling -->
+      <div class="card-content relative bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-200 ease-out cursor-pointer hover:bg-white/[0.08] hover:ring-white/20">
         <div class="flex items-start gap-3">
           <div class="shrink-0">
             <div class="w-8 h-8 rounded-md bg-slate-900 ring-1 ring-white/10 flex items-center justify-center">
@@ -75,7 +82,7 @@ class ItemManager {
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
-              <button class="inbox-tag inline-flex items-center gap-1.5 text-[11px] px-1.5 py-0.5 rounded bg-white/5 text-slate-300 ring-1 ring-white/10">
+              <button class="inbox-tag inline-flex items-center gap-1.5 text-[11px] px-1.5 py-0.5 rounded bg-white/5 text-slate-300 ring-1 ring-white/10 hover:bg-white/10 transition-colors">
                 <i data-lucide="tag" class="w-3.5 h-3.5"></i> ${this.capitalizeFirst(item.category)}
               </button>
               <span class="text-[11px] text-slate-400 flex items-center gap-1">
@@ -124,6 +131,17 @@ class ItemManager {
 
   // Setup swipe gestures for inbox items
   setupSwipeGestures(element, item) {
+    // Use enhanced swipe manager if available
+    if (window.enhancedSwipeManager) {
+      window.enhancedSwipeManager.setupEnhancedSwipeGestures(element, item);
+    } else {
+      // Fallback to basic swipe
+      this.setupBasicSwipeGestures(element, item);
+    }
+  }
+
+  // Basic swipe gestures fallback
+  setupBasicSwipeGestures(element, item) {
     let startX = 0;
     let currentX = 0;
     let isDragging = false;

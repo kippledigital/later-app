@@ -10,9 +10,79 @@
   <script src="src/js/navigation.js"></script>
   <script src="src/js/capture.js"></script>
   <script src="src/js/items.js"></script>
+  <script src="src/js/enhanced-swipe.js"></script>
   <script src="src/js/app.js"></script>
 <style>
 @keyframes shimmerX { from { transform: translate3d(-40%,0,0) skewX(-12deg); } to { transform: translate3d(140%,0,0) skewX(-12deg); } }
+
+/* Enhanced swipe animations */
+.swipe-item {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.swipe-item.swiping {
+  z-index: 10;
+}
+
+.swipe-item .card-content {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.swipe-indicators {
+  transition: opacity 0.2s ease;
+}
+
+/* Success feedback animation */
+@keyframes slideInFromTop {
+  from {
+    transform: translate(-50%, -20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToTop {
+  from {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -20px);
+    opacity: 0;
+  }
+}
+
+/* Category menu animations */
+#categoryMenu {
+  animation: slideInFromTop 0.2s ease-out;
+}
+
+/* Confirmation dialog animations */
+#confirmationDialog {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Haptic feedback simulation */
+@keyframes hapticPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.999); }
+}
 </style>
 </head>
 <body class="antialiased bg-slate-950 text-slate-200 selection:bg-cyan-400/30">
