@@ -1,0 +1,396 @@
+// Main application controller
+class AppManager {
+  constructor() {
+    this.init();
+  }
+
+  init() {
+    this.setupEventListeners();
+    this.initializeLucideIcons();
+    this.renderAllScreens();
+    this.setupGreeting();
+  }
+
+  setupEventListeners() {
+    // Demo button
+    const addDemoBtn = document.getElementById('addDemoBtn');
+    if (addDemoBtn) {
+      addDemoBtn.addEventListener('click', () => this.addDemoItem());
+    }
+
+    // Library category filters
+    document.querySelectorAll('.cat-pill').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const category = e.currentTarget.dataset.cat;
+        this.filterLibraryByCategory(category);
+      });
+    });
+
+    // Empty state buttons
+    this.setupEmptyStateButtons();
+  }
+
+  setupEmptyStateButtons() {
+    // Inbox empty state
+    const inboxGetStarted = document.getElementById('inboxGetStarted');
+    if (inboxGetStarted) {
+      inboxGetStarted.addEventListener('click', () => {
+        if (window.captureManager) {
+          window.captureManager.openModal();
+        }
+      });
+    }
+
+    const inboxBrowseLibrary = document.getElementById('inboxBrowseLibrary');
+    if (inboxBrowseLibrary) {
+      inboxBrowseLibrary.addEventListener('click', () => {
+        if (window.navigationManager) {
+          window.navigationManager.showScreen('library');
+        }
+      });
+    }
+
+    // Library empty state
+    const libraryGetStarted = document.getElementById('libraryGetStarted');
+    if (libraryGetStarted) {
+      libraryGetStarted.addEventListener('click', () => {
+        if (window.captureManager) {
+          window.captureManager.openModal();
+        }
+      });
+    }
+
+    const libraryCaptureIdea = document.getElementById('libraryCaptureIdea');
+    if (libraryCaptureIdea) {
+      libraryCaptureIdea.addEventListener('click', () => {
+        if (window.captureManager) {
+          window.captureManager.openModal();
+        }
+      });
+    }
+  }
+
+  initializeLucideIcons() {
+    // Initialize Lucide icons if available
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  }
+
+  setupGreeting() {
+    const greetingEl = document.getElementById('greeting');
+    const contextSubEl = document.getElementById('contextSub');
+    
+    if (greetingEl && contextSubEl) {
+      const hour = new Date().getHours();
+      let greeting, context;
+      
+      if (hour < 12) {
+        greeting = 'Good morning';
+        context = 'Start your day with intention';
+      } else if (hour < 17) {
+        greeting = 'Good afternoon';
+        context = 'Find your focus';
+      } else {
+        greeting = 'Good evening';
+        context = 'Wind down gently';
+      }
+      
+      greetingEl.textContent = greeting;
+      contextSubEl.textContent = context;
+    }
+  }
+
+  renderAllScreens() {
+    this.renderNowScreen();
+    this.renderInboxScreen();
+    this.renderLibraryScreen();
+  }
+
+  renderNowScreen() {
+    // Get items that might need attention (inbox items)
+    const inboxItems = window.dataManager.getItems('inbox');
+    const libraryItems = window.dataManager.getItems('library');
+    
+    // Show/hide empty states
+    this.toggleEmptyState('emptyNow', inboxItems.length === 0);
+    
+    // Update attention section
+    this.updateAttentionSection(inboxItems.slice(0, 2));
+    
+    // Update reading section
+    this.updateReadingSection(libraryItems.filter(item => item.category === 'inspiration').slice(0, 2));
+    
+    // Update explore section
+    this.updateExploreSection(libraryItems.slice(0, 2));
+  }
+
+  renderInboxScreen() {
+    const inboxItems = window.dataManager.getItems('inbox');
+    const inboxList = document.getElementById('inboxList');
+    
+    if (inboxList) {
+      window.itemManager.renderItems(inboxList, inboxItems, 'inbox');
+    }
+    
+    // Show/hide empty state
+    this.toggleEmptyState('inboxEmpty', inboxItems.length === 0);
+  }
+
+  renderLibraryScreen() {
+    const libraryItems = window.dataManager.getItems('library');
+    const libraryGrid = document.getElementById('libraryGrid');
+    
+    if (libraryGrid) {
+      window.itemManager.renderItems(libraryGrid, libraryItems, 'library');
+    }
+    
+    // Show/hide empty state
+    this.toggleEmptyState('libraryEmpty', libraryItems.length === 0);
+  }
+
+  updateAttentionSection(items) {
+    const attentionCards = document.getElementById('attentionCards');
+    if (!attentionCards) return;
+    
+    if (items.length === 0) {
+      attentionCards.innerHTML = `
+        <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4">
+          <div class="flex items-center gap-2 mb-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4 text-cyan-300"></i>
+            <span class="text-sm font-medium text-slate-200">All caught up — nothing needs attention right now.</span>
+          </div>
+          <p class="text-sm text-slate-400">Your inbox is clear. Add something new when you're ready.</p>
+        </div>
+      `;
+    } else {
+      attentionCards.innerHTML = items.map(item => this.createAttentionCard(item)).join('');
+    }
+    
+    this.initializeLucideIcons();
+  }
+
+  updateReadingSection(items) {
+    const readingCards = document.getElementById('readingCards');
+    if (!readingCards) return;
+    
+    if (items.length === 0) {
+      document.getElementById('emptyReading')?.classList.remove('hidden');
+    } else {
+      document.getElementById('emptyReading')?.classList.add('hidden');
+      readingCards.innerHTML = items.map(item => this.createReadingCard(item)).join('');
+    }
+    
+    this.initializeLucideIcons();
+  }
+
+  updateExploreSection(items) {
+    const exploreCards = document.getElementById('exploreCards');
+    if (!exploreCards) return;
+    
+    if (items.length === 0) {
+      document.getElementById('emptyExplore')?.classList.remove('hidden');
+    } else {
+      document.getElementById('emptyExplore')?.classList.add('hidden');
+      exploreCards.innerHTML = items.map(item => this.createExploreCard(item)).join('');
+    }
+    
+    this.initializeLucideIcons();
+  }
+
+  createAttentionCard(item) {
+    const icon = window.itemManager.getCategoryIcon(item.category);
+    const timeAgo = window.itemManager.getTimeAgo(item.createdAt);
+    
+    return `
+      <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
+        <div class="flex items-start gap-3">
+          <div class="shrink-0 mt-0.5">
+            <div class="w-8 h-8 rounded-md bg-slate-900 ring-1 ring-white/10 flex items-center justify-center">
+              <i data-lucide="${icon}" class="w-4 h-4 text-slate-300"></i>
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Action</span>
+              <span class="text-[11px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${timeAgo}</span>
+            </div>
+            <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">${window.itemManager.escapeHtml(item.title)}</h3>
+            <p class="text-[13px] text-slate-400 line-clamp-2">${window.itemManager.escapeHtml(item.content || 'No description')}</p>
+            <div class="mt-3 flex items-center gap-2">
+              <button onclick="window.appManager.moveToLibrary('${item.id}')" class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 ring-1 ring-cyan-500/25 transition-colors">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                Move to Library
+              </button>
+              <button onclick="window.appManager.archiveItem('${item.id}')" class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
+                <i data-lucide="archive" class="w-4 h-4"></i>
+                Archive
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  createReadingCard(item) {
+    const progress = Math.round(item.progress * 100);
+    const timeAgo = window.itemManager.getTimeAgo(item.createdAt);
+    
+    return `
+      <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
+        <div class="flex items-start gap-3">
+          <div class="w-14 h-14 rounded-md bg-slate-900 ring-1 ring-white/10 flex items-center justify-center">
+            <i data-lucide="book-open" class="w-5 h-5 text-slate-300"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Read Later</span>
+              <span class="text-[11px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>5 min read</span>
+              ${item.progress > 0 ? `<span class="text-[11px] text-slate-500">${progress}% through</span>` : ''}
+            </div>
+            <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">${window.itemManager.escapeHtml(item.title)}</h3>
+            <p class="text-[13px] text-slate-400 line-clamp-2">${window.itemManager.escapeHtml(item.content || 'No description')}</p>
+            <div class="mt-3 flex items-center gap-2">
+              <button onclick="window.appManager.openItem('${item.id}')" class="read-btn inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 ring-1 ring-cyan-500/25 transition-colors">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                Read
+              </button>
+              <button onclick="window.appManager.updateProgress('${item.id}', 0.4)" class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
+                <i data-lucide="bookmark" class="w-4 h-4"></i>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  createExploreCard(item) {
+    const icon = window.itemManager.getCategoryIcon(item.category);
+    const timeAgo = window.itemManager.getTimeAgo(item.createdAt);
+    
+    return `
+      <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-md bg-slate-900 ring-1 ring-white/10 flex items-center justify-center">
+            <i data-lucide="${icon}" class="w-4 h-4 text-slate-300"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">${window.itemManager.capitalizeFirst(item.category)}</span>
+              <span class="text-[11px] text-slate-400">${timeAgo}</span>
+            </div>
+            <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">${window.itemManager.escapeHtml(item.title)}</h3>
+            <p class="text-[13px] text-slate-400 line-clamp-2">${window.itemManager.escapeHtml(item.content || 'No description')}</p>
+            <div class="mt-3">
+              <button onclick="window.appManager.openItem('${item.id}')" class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+                Open
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  filterLibraryByCategory(category) {
+    const libraryItems = window.dataManager.getItems('library', category);
+    const libraryGrid = document.getElementById('libraryGrid');
+    
+    if (libraryGrid) {
+      window.itemManager.renderItems(libraryGrid, libraryItems, 'library');
+    }
+    
+    // Update filter buttons
+    document.querySelectorAll('.cat-pill').forEach(btn => {
+      if (btn.dataset.cat === category) {
+        btn.classList.add('bg-white/10', 'text-slate-200');
+        btn.classList.remove('bg-white/5', 'text-slate-300');
+      } else {
+        btn.classList.remove('bg-white/10', 'text-slate-200');
+        btn.classList.add('bg-white/5', 'text-slate-300');
+      }
+    });
+    
+    // Show/hide filtered empty state
+    this.toggleEmptyState('libraryFilteredEmpty', libraryItems.length === 0);
+    this.toggleEmptyState('libraryEmpty', false);
+  }
+
+  toggleEmptyState(elementId, show) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      if (show) {
+        element.classList.remove('hidden');
+      } else {
+        element.classList.add('hidden');
+      }
+    }
+  }
+
+  // Action methods
+  addDemoItem() {
+    const demoItems = [
+      {
+        title: 'Review quarterly goals',
+        content: 'Check progress on Q4 objectives and plan next steps',
+        category: 'work',
+        state: 'inbox'
+      },
+      {
+        title: 'Plan weekend hike',
+        content: 'Research trails and pack essentials for Saturday adventure',
+        category: 'life',
+        state: 'inbox'
+      },
+      {
+        title: 'Design inspiration collection',
+        content: 'Curated examples of minimalist interfaces and calm interactions',
+        category: 'inspiration',
+        state: 'library'
+      }
+    ];
+    
+    const randomItem = demoItems[Math.floor(Math.random() * demoItems.length)];
+    window.dataManager.saveItem(randomItem);
+    
+    // Refresh current screen
+    const currentScreen = window.navigationManager.getCurrentScreen();
+    window.navigationManager.onScreenChange(currentScreen);
+  }
+
+  moveToLibrary(id) {
+    window.dataManager.moveItem(id, 'library');
+    this.renderNowScreen();
+  }
+
+  archiveItem(id) {
+    window.dataManager.moveItem(id, 'archived');
+    this.renderNowScreen();
+  }
+
+  openItem(id) {
+    const item = window.dataManager.getItem(id);
+    if (item && item.url) {
+      window.open(item.url, '_blank', 'noopener');
+    }
+  }
+
+  updateProgress(id, progress) {
+    window.dataManager.updateItemProgress(id, progress);
+    this.renderNowScreen();
+  }
+}
+
+// Initialize app when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // Make managers globally available
+  window.dataManager = dataManager;
+  window.navigationManager = navigationManager;
+  window.captureManager = captureManager;
+  window.itemManager = itemManager;
+  window.appManager = new AppManager();
+});
