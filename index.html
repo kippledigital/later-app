@@ -11,6 +11,7 @@
   <script src="src/js/capture.js"></script>
   <script src="src/js/items.js"></script>
   <script src="src/js/enhanced-swipe.js"></script>
+  <script src="src/js/reader.js"></script>
   <script src="src/js/app.js"></script>
 <style>
 @keyframes shimmerX { from { transform: translate3d(-40%,0,0) skewX(-12deg); } to { transform: translate3d(140%,0,0) skewX(-12deg); } }
@@ -82,6 +83,182 @@
 @keyframes hapticPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(0.999); }
+}
+
+/* Reader overlay styles */
+#readerOverlay {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.reader-content {
+  min-height: calc(100vh - 8rem);
+}
+
+/* Article content styling */
+#readerOverlay .prose {
+  color: #e2e8f0;
+  line-height: 1.7;
+}
+
+#readerOverlay .prose h1,
+#readerOverlay .prose h2,
+#readerOverlay .prose h3,
+#readerOverlay .prose h4,
+#readerOverlay .prose h5,
+#readerOverlay .prose h6 {
+  color: #f1f5f9;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+#readerOverlay .prose h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+#readerOverlay .prose h2 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+#readerOverlay .prose h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+#readerOverlay .prose p {
+  margin-bottom: 1.5rem;
+  color: #cbd5e1;
+}
+
+#readerOverlay .prose a {
+  color: #67e8f9;
+  text-decoration: underline;
+  text-decoration-color: rgba(103, 232, 249, 0.3);
+  transition: all 0.2s ease;
+}
+
+#readerOverlay .prose a:hover {
+  color: #22d3ee;
+  text-decoration-color: rgba(34, 211, 238, 0.6);
+}
+
+#readerOverlay .prose img {
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  max-width: 100%;
+  height: auto;
+}
+
+#readerOverlay .prose blockquote {
+  border-left: 4px solid #67e8f9;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #94a3b8;
+}
+
+#readerOverlay .prose ul,
+#readerOverlay .prose ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+#readerOverlay .prose li {
+  margin: 0.5rem 0;
+  color: #cbd5e1;
+}
+
+#readerOverlay .prose code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  color: #fbbf24;
+}
+
+#readerOverlay .prose pre {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+#readerOverlay .prose pre code {
+  background: none;
+  padding: 0;
+  color: #e2e8f0;
+}
+
+/* Light theme for reader */
+#readerOverlay.light-theme {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+#readerOverlay.light-theme .reader-header,
+#readerOverlay.light-theme .reader-footer {
+  background: rgba(248, 250, 252, 0.95);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+#readerOverlay.light-theme .prose {
+  color: #334155;
+}
+
+#readerOverlay.light-theme .prose h1,
+#readerOverlay.light-theme .prose h2,
+#readerOverlay.light-theme .prose h3,
+#readerOverlay.light-theme .prose h4,
+#readerOverlay.light-theme .prose h5,
+#readerOverlay.light-theme .prose h6 {
+  color: #0f172a;
+}
+
+#readerOverlay.light-theme .prose p {
+  color: #475569;
+}
+
+#readerOverlay.light-theme .prose a {
+  color: #0ea5e9;
+}
+
+#readerOverlay.light-theme .prose blockquote {
+  border-left-color: #0ea5e9;
+  color: #64748b;
+}
+
+#readerOverlay.light-theme .prose li {
+  color: #475569;
+}
+
+#readerOverlay.light-theme .prose code {
+  background: rgba(0, 0, 0, 0.1);
+  color: #dc2626;
+}
+
+#readerOverlay.light-theme .prose pre {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+#readerOverlay.light-theme .prose pre code {
+  color: #334155;
+}
+
+/* Font size variations */
+#readerOverlay .prose.text-sm {
+  font-size: 0.875rem;
+}
+
+#readerOverlay .prose.text-base {
+  font-size: 1rem;
+}
+
+#readerOverlay .prose.text-lg {
+  font-size: 1.125rem;
 }
 </style>
 </head>

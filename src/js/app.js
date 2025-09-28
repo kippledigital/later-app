@@ -347,9 +347,24 @@ class AppManager {
         state: 'inbox'
       },
       {
-        title: 'Design inspiration collection',
-        content: 'Curated examples of minimalist interfaces and calm interactions',
+        title: 'The Art of Calm Technology',
+        content: 'How to design interfaces that respect attention and blend into daily life',
+        url: 'https://medium.com/@ambercase/calm-technology-7be4818e62f5',
         category: 'inspiration',
+        state: 'library'
+      },
+      {
+        title: 'Building Better Habits',
+        content: 'A gentle guide to creating routines that stick without guilt or pressure',
+        url: 'https://jamesclear.com/atomic-habits',
+        category: 'inspiration',
+        state: 'library'
+      },
+      {
+        title: 'Minimalist Design Principles',
+        content: 'Creating beautiful, functional interfaces with less',
+        url: 'https://www.interaction-design.org/literature/article/minimalism-in-design',
+        category: 'work',
         state: 'library'
       }
     ];
@@ -375,7 +390,13 @@ class AppManager {
   openItem(id) {
     const item = window.dataManager.getItem(id);
     if (item && item.url) {
-      window.open(item.url, '_blank', 'noopener');
+      // Open in reader overlay
+      if (window.readerManager) {
+        window.readerManager.openReader(item);
+      } else {
+        // Fallback to new tab
+        window.open(item.url, '_blank', 'noopener');
+      }
     }
   }
 
@@ -396,6 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.captureManager = captureManager;
     window.itemManager = itemManager;
     window.enhancedSwipeManager = enhancedSwipeManager;
+    window.readerManager = readerManager;
     
     console.log('Managers created, initializing...');
     
@@ -403,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.navigationManager.init();
     window.captureManager.init();
     window.enhancedSwipeManager.init();
+    window.readerManager.init();
     
     console.log('Managers initialized, creating app...');
     
