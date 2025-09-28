@@ -76,20 +76,31 @@ class NavigationManager {
   updateTabStates(activeScreen) {
     document.querySelectorAll('.tab-btn').forEach(btn => {
       const screen = btn.dataset.nav;
+      const icon = btn.querySelector('i');
+      const text = btn.querySelector('span');
+      
       if (screen === activeScreen) {
         btn.classList.add('bg-white/5');
         btn.classList.remove('bg-white/0');
-        btn.querySelector('i').classList.remove('text-slate-300');
-        btn.querySelector('i').classList.add('text-cyan-300');
-        btn.querySelector('span').classList.remove('text-slate-300');
-        btn.querySelector('span').classList.add('text-slate-300');
+        if (icon) {
+          icon.classList.remove('text-slate-300');
+          icon.classList.add('text-cyan-300');
+        }
+        if (text) {
+          text.classList.remove('text-slate-300');
+          text.classList.add('text-slate-300');
+        }
       } else {
         btn.classList.remove('bg-white/5');
         btn.classList.add('bg-white/0');
-        btn.querySelector('i').classList.add('text-slate-300');
-        btn.querySelector('i').classList.remove('text-cyan-300');
-        btn.querySelector('span').classList.remove('text-slate-300');
-        btn.querySelector('span').classList.add('text-slate-300');
+        if (icon) {
+          icon.classList.add('text-slate-300');
+          icon.classList.remove('text-cyan-300');
+        }
+        if (text) {
+          text.classList.remove('text-slate-300');
+          text.classList.add('text-slate-300');
+        }
       }
     });
   }

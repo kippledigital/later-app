@@ -112,6 +112,22 @@ class DataManager {
     return this.items.find(item => item.id === id);
   }
 
+  // Get all items
+  getAllItems() {
+    return [...this.items];
+  }
+
+  // Update item (generic update method)
+  updateItem(id, updates) {
+    const item = this.items.find(item => item.id === id);
+    if (item) {
+      Object.assign(item, updates);
+      this.saveItems();
+      return true;
+    }
+    return false;
+  }
+
   // Get stats for dashboard
   getStats() {
     const stats = {
