@@ -81,7 +81,14 @@ class AppManager {
     const greetingEl = document.getElementById('greeting');
     const contextSubEl = document.getElementById('contextSub');
     
-    if (greetingEl && contextSubEl) {
+    if (greetingEl && contextSubEl && window.contextDetectionManager) {
+      const greeting = window.contextDetectionManager.getPersonalizedGreeting();
+      const subtitle = window.contextDetectionManager.getContextualSubtitle();
+      
+      greetingEl.textContent = greeting;
+      contextSubEl.textContent = subtitle;
+    } else {
+      // Fallback to basic greeting
       const hour = new Date().getHours();
       let greeting, context;
       
@@ -108,21 +115,33 @@ class AppManager {
   }
 
   renderNowScreen() {
-    // Get items that might need attention (inbox items)
-    const inboxItems = window.dataManager.getItems('inbox');
-    const libraryItems = window.dataManager.getItems('library');
+    // Get all items for smart recommendations
+    const allItems = window.dataManager.getAllItems();
+    
+    // Get smart recommendations if context detection is available
+    let recommendations;
+    if (window.contextDetectionManager) {
+      recommendations = window.contextDetectionManager.getSmartRecommendations(allItems);
+    } else {
+      // Fallback to basic recommendations
+      const inboxItems = window.dataManager.getItems('inbox');
+      const libraryItems = window.dataManager.getItems('library');
+      recommendations = {
+        attention: inboxItems.slice(0, 2),
+        reading: libraryItems.filter(item => item.category === 'inspiration').slice(0, 2),
+        explore: libraryItems.slice(0, 2),
+        quickActions: []
+      };
+    }
     
     // Show/hide empty states
-    this.toggleEmptyState('emptyNow', inboxItems.length === 0);
+    this.toggleEmptyState('emptyNow', recommendations.attention.length === 0);
     
-    // Update attention section
-    this.updateAttentionSection(inboxItems.slice(0, 2));
-    
-    // Update reading section
-    this.updateReadingSection(libraryItems.filter(item => item.category === 'inspiration').slice(0, 2));
-    
-    // Update explore section
-    this.updateExploreSection(libraryItems.slice(0, 2));
+    // Update sections with smart recommendations
+    this.updateAttentionSection(recommendations.attention);
+    this.updateReadingSection(recommendations.reading);
+    this.updateExploreSection(recommendations.explore);
+    this.updateQuickActions(recommendations.quickActions);
   }
 
   renderInboxScreen() {
@@ -198,9 +217,70 @@ class AppManager {
     this.initializeLucideIcons();
   }
 
+  updateQuickActions(actions) {
+    // Find or create quick actions container
+    let quickActionsContainer = document.getElementById('quickActions');
+    if (!quickActionsContainer) {
+      // Create quick actions section if it doesn't exist
+      const nowSection = document.querySelector('#screen-now .px-4.pt-5.pb-28');
+      if (nowSection && actions.length > 0) {
+        const quickActionsHTML = `
+          <div id="quickActions" class="mb-7">
+            <div class="flex items-center gap-2 mb-3">
+              <i data-lucide="zap" class="w-4 h-4 text-cyan-300"></i>
+              <h2 class="text-[18px] tracking-tight font-semibold text-slate-100">Quick Actions</h2>
+            </div>
+            <div class="grid grid-cols-1 gap-3" id="quickActionsList">
+              <!-- Quick actions will be inserted here -->
+            </div>
+          </div>
+        `;
+        
+        // Insert after the greeting section
+        const greetingSection = nowSection.querySelector('.mb-5');
+        if (greetingSection) {
+          greetingSection.insertAdjacentHTML('afterend', quickActionsHTML);
+        }
+      }
+      quickActionsContainer = document.getElementById('quickActions');
+    }
+    
+    if (!quickActionsContainer || actions.length === 0) {
+      if (quickActionsContainer) {
+        quickActionsContainer.style.display = 'none';
+      }
+      return;
+    }
+    
+    quickActionsContainer.style.display = 'block';
+    const actionsList = document.getElementById('quickActionsList');
+    if (actionsList) {
+      actionsList.innerHTML = actions.map(action => this.createQuickActionCard(action)).join('');
+    }
+    
+    this.initializeLucideIcons();
+  }
+
+  createQuickActionCard(action) {
+    return `
+      <button onclick="window.appManager.handleQuickAction('${action.id}')" class="w-full text-left rounded-xl bg-gradient-to-br from-white/5 to-white/[0.03] ring-1 ring-white/10 p-3 transition-all duration-300 hover:from-white/[0.08] hover:to-white/[0.05]">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-md bg-slate-900 ring-1 ring-white/10 flex items-center justify-center">
+            <i data-lucide="${action.icon}" class="w-4 h-4 text-cyan-300"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">${action.title}</h3>
+            <p class="text-[13px] text-slate-400 line-clamp-2">${action.description}</p>
+          </div>
+        </div>
+      </button>
+    `;
+  }
+
   createAttentionCard(item) {
     const icon = window.itemManager.getCategoryIcon(item.category);
     const timeAgo = window.itemManager.getTimeAgo(item.createdAt);
+    const reason = item.reason || 'Action';
     
     return `
       <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
@@ -212,7 +292,7 @@ class AppManager {
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
-              <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Action</span>
+              <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">${reason}</span>
               <span class="text-[11px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>${timeAgo}</span>
             </div>
             <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">${window.itemManager.escapeHtml(item.title)}</h3>
@@ -377,12 +457,52 @@ class AppManager {
     window.navigationManager.onScreenChange(currentScreen);
   }
 
+  handleQuickAction(actionId) {
+    // Track the quick action
+    if (window.contextDetectionManager) {
+      window.contextDetectionManager.trackAction('quick_action', actionId);
+    }
+    
+    switch (actionId) {
+      case 'morning-focus':
+      case 'afternoon-break':
+        // Open capture modal
+        if (window.captureManager) {
+          window.captureManager.openModal();
+        }
+        break;
+      case 'evening-wind-down':
+        // Navigate to library with inspiration filter
+        if (window.navigationManager) {
+          window.navigationManager.showScreen('library');
+          // Could add filter logic here
+        }
+        break;
+      case 'daily-check-in':
+        // Navigate to inbox
+        if (window.navigationManager) {
+          window.navigationManager.showScreen('inbox');
+        }
+        break;
+    }
+  }
+
   moveToLibrary(id) {
+    // Track the action
+    if (window.contextDetectionManager) {
+      window.contextDetectionManager.trackAction('move_to_library', id);
+    }
+    
     window.dataManager.moveItem(id, 'library');
     this.renderNowScreen();
   }
 
   archiveItem(id) {
+    // Track the action
+    if (window.contextDetectionManager) {
+      window.contextDetectionManager.trackAction('archive', id);
+    }
+    
     window.dataManager.moveItem(id, 'archived');
     this.renderNowScreen();
   }
@@ -390,6 +510,11 @@ class AppManager {
   openItem(id) {
     const item = window.dataManager.getItem(id);
     if (item && item.url) {
+      // Track the action
+      if (window.contextDetectionManager) {
+        window.contextDetectionManager.trackAction('read', id);
+      }
+      
       // Open in reader overlay
       if (window.readerManager) {
         window.readerManager.openReader(item);
@@ -401,6 +526,11 @@ class AppManager {
   }
 
   updateProgress(id, progress) {
+    // Track the action
+    if (window.contextDetectionManager) {
+      window.contextDetectionManager.trackAction('update_progress', id);
+    }
+    
     window.dataManager.updateItemProgress(id, progress);
     this.renderNowScreen();
   }
@@ -418,6 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.itemManager = itemManager;
     window.enhancedSwipeManager = enhancedSwipeManager;
     window.readerManager = readerManager;
+    window.contextDetectionManager = contextDetectionManager;
     
     console.log('Managers created, initializing...');
     
@@ -426,6 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.captureManager.init();
     window.enhancedSwipeManager.init();
     window.readerManager.init();
+    window.contextDetectionManager.init();
     
     console.log('Managers initialized, creating app...');
     
