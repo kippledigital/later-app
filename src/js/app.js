@@ -18,6 +18,16 @@ class AppManager {
       addDemoBtn.addEventListener('click', () => this.addDemoItem());
     }
 
+    // Search button
+    const openSearchBtn = document.getElementById('openSearchBtn');
+    if (openSearchBtn) {
+      openSearchBtn.addEventListener('click', () => {
+        if (window.searchManager) {
+          window.searchManager.openSearch();
+        }
+      });
+    }
+
     // Library category filters
     document.querySelectorAll('.cat-pill').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -549,6 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.enhancedSwipeManager = enhancedSwipeManager;
     window.readerManager = readerManager;
     window.contextDetectionManager = contextDetectionManager;
+    window.searchManager = searchManager;
     
     console.log('Managers created, initializing...');
     
@@ -558,6 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.enhancedSwipeManager.init();
     window.readerManager.init();
     window.contextDetectionManager.init();
+    window.searchManager.init();
     
     console.log('Managers initialized, creating app...');
     
