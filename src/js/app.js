@@ -518,8 +518,12 @@ class AppManager {
   }
 
   openItem(id) {
+    console.log('openItem called with id:', id);
     const item = window.dataManager.getItem(id);
+    console.log('Found item:', item);
+    
     if (item && item.url) {
+      console.log('Item has URL, opening reader...');
       // Track the action
       if (window.contextDetectionManager) {
         window.contextDetectionManager.trackAction('read', id);
@@ -527,11 +531,15 @@ class AppManager {
       
       // Open in reader overlay
       if (window.readerManager) {
+        console.log('Reader manager found, opening reader...');
         window.readerManager.openReader(item);
       } else {
+        console.log('Reader manager not found, opening in new tab...');
         // Fallback to new tab
         window.open(item.url, '_blank', 'noopener');
       }
+    } else {
+      console.log('Item not found or has no URL:', item);
     }
   }
 
