@@ -972,4 +972,129 @@
       Work
     </button>
     <button data-cat-option="life" class="w-full flex items-center gap-2 px-2.5 py-2 rounded-md hover:bg-white/5 text-[13px] text-slate-200">
-      <span class="inline-flex w-6 h-6 items-center justify-center rounded bg-emerald-400/
+      <span class="inline-flex w-6 h-6 items-center justify-center rounded bg-emerald-400/10 ring-1 ring-emerald-400/20">
+        <i data-lucide="heart" class="w-3.5 h-3.5 text-emerald-300"></i>
+      </span>
+      Life
+    </button>
+    <button data-cat-option="inspiration" class="w-full flex items-center gap-2 px-2.5 py-2 rounded-md hover:bg-white/5 text-[13px] text-slate-200">
+      <span class="inline-flex w-6 h-6 items-center justify-center rounded bg-purple-400/10 ring-1 ring-purple-400/20">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-300"></i>
+      </span>
+      Inspiration
+    </button>
+  </div>
+
+  <!-- Confirmation dialog -->
+  <div id="confirmDialog" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur">
+    <div class="bg-slate-900 rounded-xl ring-1 ring-white/10 p-6 max-w-sm mx-4">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-lg bg-orange-400/10 ring-1 ring-orange-400/20 flex items-center justify-center">
+          <i data-lucide="archive" class="w-5 h-5 text-orange-300"></i>
+        </div>
+        <div>
+          <h3 class="text-[15px] font-medium text-slate-100">Archive Item</h3>
+          <p class="text-[13px] text-slate-400">This will move the item to your archive</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="confirmCancel" class="flex-1 inline-flex items-center justify-center gap-1.5 text-[13px] px-3 py-2 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10">
+          <i data-lucide="x" class="w-4 h-4"></i>
+          Cancel
+        </button>
+        <button id="confirmArchive" class="flex-1 inline-flex items-center justify-center gap-1.5 text-[13px] px-3 py-2 rounded-md bg-orange-500/15 hover:bg-orange-500/25 text-orange-300 ring-1 ring-orange-500/25">
+          <i data-lucide="archive" class="w-4 h-4"></i>
+          Archive
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reader Overlay -->
+  <div id="readerOverlay" class="hidden fixed inset-0 z-[100] bg-slate-950">
+    <!-- Reader Header -->
+    <div class="reader-header fixed top-0 left-0 right-0 z-10 bg-slate-950/95 backdrop-blur border-b border-white/10">
+      <div class="flex items-center gap-3 px-4 py-3">
+        <button id="readerBack" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors">
+          <i data-lucide="arrow-left" class="w-4 h-4 text-slate-300"></i>
+        </button>
+        <div class="flex-1 min-w-0">
+          <h1 id="readerTitle" class="text-[15px] font-medium text-slate-100 truncate">Loading...</h1>
+          <p id="readerUrl" class="text-[12px] text-slate-400 truncate"></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="readerTheme" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors">
+            <i data-lucide="sun" class="w-4 h-4 text-slate-300"></i>
+          </button>
+          <button id="readerFontSize" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors">
+            <i data-lucide="type" class="w-4 h-4 text-slate-300"></i>
+          </button>
+          <button id="readerBookmark" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors">
+            <i data-lucide="bookmark" class="w-4 h-4 text-slate-300"></i>
+          </button>
+          <button id="readerShare" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors">
+            <i data-lucide="share" class="w-4 h-4 text-slate-300"></i>
+          </button>
+          <button id="readerClose" class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-colors">
+            <i data-lucide="x" class="w-4 h-4 text-slate-300"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="h-1 bg-slate-800">
+        <div id="readerProgress" class="h-full bg-gradient-to-r from-cyan-400 to-blue-400 transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Reader Content -->
+    <div class="reader-content pt-20 pb-8">
+      <div class="max-w-4xl mx-auto px-4">
+        <!-- Loading State -->
+        <div id="readerLoading" class="flex flex-col items-center justify-center py-20">
+          <div class="w-12 h-12 rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="loader-2" class="w-6 h-6 text-cyan-300 animate-spin"></i>
+          </div>
+          <h3 class="text-[16px] font-medium text-slate-100 mb-2">Loading Article</h3>
+          <p class="text-[14px] text-slate-400 text-center">Fetching content from the web...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="readerError" class="hidden flex flex-col items-center justify-center py-20">
+          <div class="w-12 h-12 rounded-lg bg-red-500/10 ring-1 ring-red-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="alert-circle" class="w-6 h-6 text-red-300"></i>
+          </div>
+          <h3 class="text-[16px] font-medium text-slate-100 mb-2">Unable to Load Article</h3>
+          <p class="text-[14px] text-slate-400 text-center mb-4">There was an error loading this article.</p>
+          <button id="readerRetry" class="inline-flex items-center gap-1.5 text-[13px] px-3 py-2 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 ring-1 ring-cyan-500/25">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            Try Again
+          </button>
+        </div>
+
+        <!-- Article Content -->
+        <div id="readerArticle" class="hidden prose prose-slate prose-invert max-w-none">
+          <!-- Article content will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Reader Footer -->
+    <div class="reader-footer fixed bottom-0 left-0 right-0 z-10 bg-slate-950/95 backdrop-blur border-t border-white/10">
+      <div class="flex items-center justify-between px-4 py-3">
+        <div class="flex items-center gap-2">
+          <span class="text-[12px] text-slate-400">Reading time:</span>
+          <span id="readerTime" class="text-[12px] text-slate-300">2 min</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="readerOriginal" class="inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            Original
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
