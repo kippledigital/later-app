@@ -387,16 +387,30 @@ class AppManager {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  // Make managers globally available
-  window.dataManager = dataManager;
-  window.navigationManager = navigationManager;
-  window.captureManager = captureManager;
-  window.itemManager = itemManager;
+  console.log('DOM loaded, initializing app...');
   
-  // Initialize managers
-  window.navigationManager.init();
-  window.captureManager.init();
-  
-  // Then initialize the app
-  window.appManager = new AppManager();
+  try {
+    // Make managers globally available
+    window.dataManager = dataManager;
+    window.navigationManager = navigationManager;
+    window.captureManager = captureManager;
+    window.itemManager = itemManager;
+    window.enhancedSwipeManager = enhancedSwipeManager;
+    
+    console.log('Managers created, initializing...');
+    
+    // Initialize managers
+    window.navigationManager.init();
+    window.captureManager.init();
+    window.enhancedSwipeManager.init();
+    
+    console.log('Managers initialized, creating app...');
+    
+    // Then initialize the app
+    window.appManager = new AppManager();
+    
+    console.log('App initialized successfully!');
+  } catch (error) {
+    console.error('Error initializing app:', error);
+  }
 });

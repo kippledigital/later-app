@@ -14,9 +14,15 @@ class NavigationManager {
   }
 
   setupEventListeners() {
+    console.log('Setting up navigation event listeners...');
+    
     // Tab navigation
-    document.querySelectorAll('[data-nav]').forEach(btn => {
+    const navButtons = document.querySelectorAll('[data-nav]');
+    console.log('Found navigation buttons:', navButtons.length);
+    
+    navButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
+        console.log('Navigation button clicked:', e.currentTarget.dataset.nav);
         const screen = e.currentTarget.dataset.nav;
         this.showScreen(screen);
       });
@@ -28,6 +34,8 @@ class NavigationManager {
         this.showScreen(e.state.screen, false);
       }
     });
+    
+    console.log('Navigation event listeners set up');
   }
 
   showScreen(screenName, updateHistory = true) {

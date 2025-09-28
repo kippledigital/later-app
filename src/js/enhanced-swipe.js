@@ -6,12 +6,14 @@ class EnhancedSwipeManager {
     this.animationDuration = 300;
     this.categoryMenu = null;
     this.confirmationDialog = null;
-    this.init();
+    this.initialized = false;
   }
 
   init() {
+    if (this.initialized) return;
     this.createCategoryMenu();
     this.createConfirmationDialog();
+    this.initialized = true;
   }
 
   // Create category selection menu
