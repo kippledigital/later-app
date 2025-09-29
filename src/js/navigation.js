@@ -82,23 +82,25 @@ class NavigationManager {
       if (screen === activeScreen) {
         btn.classList.add('bg-white/5');
         btn.classList.remove('bg-white/0');
+        btn.setAttribute('aria-current', 'page');
         if (icon) {
           icon.classList.remove('text-slate-300');
           icon.classList.add('text-cyan-300');
         }
         if (text) {
           text.classList.remove('text-slate-300');
-          text.classList.add('text-slate-300');
+          text.classList.add('text-slate-200');
         }
       } else {
         btn.classList.remove('bg-white/5');
         btn.classList.add('bg-white/0');
+        btn.removeAttribute('aria-current');
         if (icon) {
           icon.classList.add('text-slate-300');
           icon.classList.remove('text-cyan-300');
         }
         if (text) {
-          text.classList.remove('text-slate-300');
+          text.classList.remove('text-slate-200');
           text.classList.add('text-slate-300');
         }
       }
@@ -132,10 +134,28 @@ class NavigationManager {
         }
         break;
     }
+
+    // Broadcast screen-changed event for analytics/insights
+    try {
+      document.dispatchEvent(new CustomEvent('screen-changed', { detail: { screen: screenName } }));
+    } catch (e) {
+      // no-op
+    }
   }
 
   getCurrentScreen() {
     return this.currentScreen;
+  }
+
+  // Helper: refresh the active screen without altering history
+  refreshCurrentScreen() {
+    this.onScreenChange(this.currentScreen || 'now');
+  }
+
+  // Helper: switch to a tab programmatically
+  switchToTab(tab) {
+    if (!tab) return;
+    this.showScreen(tab);
   }
 }
 

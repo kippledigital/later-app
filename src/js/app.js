@@ -9,6 +9,25 @@ class AppManager {
     this.initializeLucideIcons();
     this.renderAllScreens();
     this.setupGreeting();
+
+    // One-time demo seed if no items exist
+    try {
+      const existingCount = window.dataManager?.getAllItems().length || 0;
+      const seededFlag = localStorage.getItem('later_demo_seeded');
+      if (existingCount === 0 && !seededFlag) {
+        // Prefer enhanced demo if available, otherwise basic
+        if (window.mockDataGenerator?.addMockDataToStorage) {
+          window.mockDataGenerator.addMockDataToStorage();
+        } else {
+          this.addDemoItem();
+        }
+        localStorage.setItem('later_demo_seeded', '1');
+        // Re-render after seeding
+        this.renderAllScreens();
+      }
+    } catch (e) {
+      console.warn('Demo seed skipped:', e);
+    }
   }
 
   setupEventListeners() {
@@ -135,7 +154,11 @@ class AppManager {
   initializeLucideIcons() {
     // Initialize Lucide icons if available
     if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
+      try {
+        lucide.createIcons();
+      } catch (e) {
+        // no-op
+      }
     }
   }
 
@@ -146,9 +169,10 @@ class AppManager {
     if (greetingEl && contextSubEl && window.contextDetectionManager) {
       const greeting = window.contextDetectionManager.getPersonalizedGreeting();
       const subtitle = window.contextDetectionManager.getContextualSubtitle();
+      const dateText = new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
       
       greetingEl.textContent = greeting;
-      contextSubEl.textContent = subtitle;
+      contextSubEl.textContent = `${subtitle} • ${dateText}`;
     } else {
       // Fallback to basic greeting
       const hour = new Date().getHours();
@@ -165,8 +189,9 @@ class AppManager {
         context = 'Wind down gently';
       }
       
+      const dateText = new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
       greetingEl.textContent = greeting;
-      contextSubEl.textContent = context;
+      contextSubEl.textContent = `${context} • ${dateText}`;
     }
   }
 
@@ -174,6 +199,8 @@ class AppManager {
     this.renderNowScreen();
     this.renderInboxScreen();
     this.renderLibraryScreen();
+    // Ensure icons render after initial content
+    this.ensureLucideIcons();
   }
 
   renderNowScreen() {
