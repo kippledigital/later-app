@@ -7,6 +7,7 @@ class AppManager {
   init() {
     this.setupEventListeners();
     this.initializeLucideIcons();
+    this.checkForFirstLaunch();
     this.renderAllScreens();
     this.setupGreeting();
   }
@@ -139,6 +140,56 @@ class AppManager {
     }
   }
 
+  checkForFirstLaunch() {
+    // Check if this is the first time loading the app
+    const hasBeenLaunched = localStorage.getItem('laterApp_hasLaunched');
+    const hasItems = window.dataManager.getAllItems().length > 0;
+
+    console.log('First launch check:', {
+      hasBeenLaunched: !!hasBeenLaunched,
+      hasItems,
+      totalItems: window.dataManager.getAllItems().length
+    });
+
+    if (!hasBeenLaunched && !hasItems) {
+      console.log('First launch detected, adding sample content...');
+      this.addSampleContent();
+      localStorage.setItem('laterApp_hasLaunched', 'true');
+    } else {
+      console.log('Not first launch or has items already');
+    }
+  }
+
+  addSampleContent() {
+    // Add a few sample items to get users started
+    const sampleItems = [
+      {
+        title: 'Welcome to Later',
+        content: 'A calm space for everything you want to come back to. Save articles, ideas, and moments for when you\'re ready.',
+        category: 'inspiration',
+        state: 'inbox',
+        type: 'article',
+        createdAt: new Date().toISOString()
+      },
+      {
+        title: 'Building Better Digital Habits',
+        content: 'Small changes in how we interact with technology can lead to more mindful and intentional living.',
+        url: 'http://localhost:8080/test-article.html',
+        category: 'life',
+        state: 'library',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop',
+        createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+      }
+    ];
+
+    sampleItems.forEach(item => {
+      window.dataManager.saveItem(item);
+    });
+
+    console.log('Added', sampleItems.length, 'sample items');
+  }
+
   setupGreeting() {
     const greetingEl = document.getElementById('greeting');
     const contextSubEl = document.getElementById('contextSub');
@@ -179,7 +230,8 @@ class AppManager {
   renderNowScreen() {
     // Get all items for smart recommendations
     const allItems = window.dataManager.getAllItems();
-    
+    console.log('Rendering Now screen with', allItems.length, 'total items');
+
     // Get smart recommendations if context detection is available
     let recommendations;
     if (window.contextDetectionManager) {
@@ -188,6 +240,8 @@ class AppManager {
       // Fallback to basic recommendations
       const inboxItems = window.dataManager.getItems('inbox');
       const libraryItems = window.dataManager.getItems('library');
+      console.log('Inbox items:', inboxItems.length, 'Library items:', libraryItems.length);
+
       recommendations = {
         attention: inboxItems.slice(0, 2),
         reading: libraryItems.filter(item => item.category === 'inspiration').slice(0, 2),
@@ -195,15 +249,28 @@ class AppManager {
         quickActions: []
       };
     }
-    
-    // Show/hide empty states
-    this.toggleEmptyState('emptyNow', recommendations.attention.length === 0);
-    
+
+    console.log('Recommendations:', {
+      attention: recommendations.attention.length,
+      reading: recommendations.reading.length,
+      explore: recommendations.explore.length
+    });
+
+    // Show main empty state if everything is empty
+    const hasAnyContent = recommendations.attention.length > 0 ||
+                         recommendations.reading.length > 0 ||
+                         recommendations.explore.length > 0;
+
+    this.toggleEmptyState('emptyNow', !hasAnyContent);
+
     // Update sections with smart recommendations
     this.updateAttentionSection(recommendations.attention);
     this.updateReadingSection(recommendations.reading);
     this.updateExploreSection(recommendations.explore);
     this.updateQuickActions(recommendations.quickActions);
+
+    // Ensure icons are rendered
+    this.ensureLucideIcons();
   }
 
   renderInboxScreen() {
@@ -259,28 +326,30 @@ class AppManager {
   updateReadingSection(items) {
     const readingCards = document.getElementById('readingCards');
     if (!readingCards) return;
-    
+
     if (items.length === 0) {
+      readingCards.innerHTML = '<!-- No reading items -->';
       document.getElementById('emptyReading')?.classList.remove('hidden');
     } else {
       document.getElementById('emptyReading')?.classList.add('hidden');
       readingCards.innerHTML = items.map(item => this.createReadingCard(item)).join('');
     }
-    
+
     this.initializeLucideIcons();
   }
 
   updateExploreSection(items) {
     const exploreCards = document.getElementById('exploreCards');
     if (!exploreCards) return;
-    
+
     if (items.length === 0) {
+      exploreCards.innerHTML = '<!-- No explore items -->';
       document.getElementById('emptyExplore')?.classList.remove('hidden');
     } else {
       document.getElementById('emptyExplore')?.classList.add('hidden');
       exploreCards.innerHTML = items.map(item => this.createExploreCard(item)).join('');
     }
-    
+
     this.initializeLucideIcons();
   }
 
@@ -639,18 +708,29 @@ class AppManager {
   // Add enhanced demo items (emails, events, tasks)
   addEnhancedDemoItems() {
     try {
+      // Clear all data and add fresh sample content
+      localStorage.clear();
+      console.log('Cleared localStorage for fresh demo');
+
+      // Add sample content
+      this.addSampleContent();
+
+      // Add enhanced demo items if available
       if (window.mockDataGenerator) {
         const mockItems = window.mockDataGenerator.addMockDataToStorage();
-
-        // Show feedback
-        this.showFeedback(`Added ${mockItems.length} demo items (emails, events, tasks)!`, 'success');
-
-        // Refresh current screen
-        const currentScreen = window.navigationManager.getCurrentScreen();
-        window.navigationManager.onScreenChange(currentScreen);
+        this.showFeedback(`Added fresh sample content + ${mockItems.length} demo items!`, 'success');
       } else {
-        this.showFeedback('Enhanced demo data not available', 'error');
+        this.showFeedback('Added fresh sample content!', 'success');
       }
+
+      // Refresh all screens
+      this.renderAllScreens();
+
+      // Ensure icons are rendered
+      setTimeout(() => {
+        this.ensureLucideIcons();
+      }, 100);
+
     } catch (error) {
       console.error('Error adding enhanced demo items:', error);
       this.showFeedback('Error adding demo items', 'error');
