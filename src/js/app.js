@@ -154,7 +154,11 @@ class AppManager {
   initializeLucideIcons() {
     // Initialize Lucide icons if available
     if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
+      try {
+        lucide.createIcons();
+      } catch (e) {
+        // no-op
+      }
     }
   }
 
@@ -165,9 +169,10 @@ class AppManager {
     if (greetingEl && contextSubEl && window.contextDetectionManager) {
       const greeting = window.contextDetectionManager.getPersonalizedGreeting();
       const subtitle = window.contextDetectionManager.getContextualSubtitle();
+      const dateText = new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
       
       greetingEl.textContent = greeting;
-      contextSubEl.textContent = subtitle;
+      contextSubEl.textContent = `${subtitle} • ${dateText}`;
     } else {
       // Fallback to basic greeting
       const hour = new Date().getHours();
@@ -184,8 +189,9 @@ class AppManager {
         context = 'Wind down gently';
       }
       
+      const dateText = new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
       greetingEl.textContent = greeting;
-      contextSubEl.textContent = context;
+      contextSubEl.textContent = `${context} • ${dateText}`;
     }
   }
 
@@ -193,6 +199,8 @@ class AppManager {
     this.renderNowScreen();
     this.renderInboxScreen();
     this.renderLibraryScreen();
+    // Ensure icons render after initial content
+    this.ensureLucideIcons();
   }
 
   renderNowScreen() {
