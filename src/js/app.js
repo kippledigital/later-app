@@ -61,9 +61,38 @@ class AppManager {
     if (smartSelectBtn) {
       smartSelectBtn.addEventListener('click', () => this.toggleSmartSelectMode());
     }
+
+    // Quick capture button on Now page
+    const quickCaptureBtn = document.getElementById('quickCaptureBtn');
+    if (quickCaptureBtn) {
+      quickCaptureBtn.addEventListener('click', () => {
+        if (window.captureManager) {
+          window.captureManager.openModal();
+        }
+      });
+    }
   }
 
   setupEmptyStateButtons() {
+    // Now page empty state buttons
+    const emptyNowPrimary = document.getElementById('emptyNowPrimary');
+    if (emptyNowPrimary) {
+      emptyNowPrimary.addEventListener('click', () => {
+        if (window.captureManager) {
+          window.captureManager.openModal();
+        }
+      });
+    }
+
+    const emptyNowSecondary = document.getElementById('emptyNowSecondary');
+    if (emptyNowSecondary) {
+      emptyNowSecondary.addEventListener('click', () => {
+        if (window.navigationManager) {
+          window.navigationManager.showScreen('inbox');
+        }
+      });
+    }
+
     // Inbox empty state
     const inboxGetStarted = document.getElementById('inboxGetStarted');
     if (inboxGetStarted) {
@@ -485,6 +514,50 @@ class AppManager {
       window.dataManager.saveItem(item);
     });
 
+    // Add some related items to showcase knowledge connections
+    const knowledgeItems = [
+      {
+        title: 'The Philosophy of Calm Computing',
+        content: 'Exploring principles of technology design that prioritize human wellbeing over engagement metrics',
+        url: 'http://localhost:8080/test-article-3.html',
+        category: 'inspiration',
+        state: 'library',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=400&h=250&fit=crop'
+      },
+      {
+        title: 'Mindful Design Patterns',
+        content: 'Interface design techniques that support focused attention and reduce cognitive load',
+        url: 'http://localhost:8080/test-article-4.html',
+        category: 'work',
+        state: 'library',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop'
+      },
+      {
+        title: 'Digital Wellness Research',
+        content: 'Recent studies on the impact of technology design on mental health and productivity',
+        url: 'http://localhost:8080/test-article-5.html',
+        category: 'inspiration',
+        state: 'inbox',
+        type: 'article',
+        imageUrl: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop'
+      }
+    ];
+
+    knowledgeItems.forEach(item => {
+      window.dataManager.saveItem(item);
+    });
+
+    // Process all items for knowledge connections after a short delay
+    if (window.knowledgeProcessor) {
+      setTimeout(() => {
+        [...demoItems, ...knowledgeItems].forEach(item => {
+          window.knowledgeProcessor.processItem(item);
+        });
+      }, 500);
+    }
+
     // Refresh current screen
     const currentScreen = window.navigationManager.getCurrentScreen();
     window.navigationManager.onScreenChange(currentScreen);
@@ -550,6 +623,13 @@ class AppManager {
     
     const randomItem = demoItems[Math.floor(Math.random() * demoItems.length)];
     window.dataManager.saveItem(randomItem);
+
+    // Process the item for knowledge connections if knowledge processor is available
+    if (window.knowledgeProcessor) {
+      setTimeout(() => {
+        window.knowledgeProcessor.processItem(randomItem);
+      }, 100);
+    }
 
     // Refresh current screen
     const currentScreen = window.navigationManager.getCurrentScreen();
@@ -726,6 +806,57 @@ class AppManager {
       lucide.createIcons();
     }
   }
+
+  // Robust Lucide icon initialization
+  ensureLucideIcons() {
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    const initIcons = () => {
+      attempts++;
+
+      if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        try {
+          lucide.createIcons();
+          console.log('Lucide icons initialized successfully on attempt', attempts);
+
+          // Double-check by counting icons
+          const iconCount = document.querySelectorAll('[data-lucide]').length;
+          console.log(`Found ${iconCount} icon elements`);
+
+          if (iconCount > 0) {
+            // Force re-render for any remaining unrendered icons
+            setTimeout(() => {
+              lucide.createIcons();
+            }, 100);
+          }
+
+          return true;
+        } catch (error) {
+          console.warn('Lucide createIcons failed:', error);
+        }
+      }
+
+      if (attempts < maxAttempts) {
+        console.log(`Lucide not ready, retrying... (attempt ${attempts}/${maxAttempts})`);
+        setTimeout(initIcons, 100);
+      } else {
+        console.error('Failed to initialize Lucide icons after', maxAttempts, 'attempts');
+      }
+    };
+
+    // Start immediately and also after DOM is fully loaded
+    initIcons();
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initIcons);
+    }
+
+    // Also try after window load
+    window.addEventListener('load', () => {
+      setTimeout(initIcons, 200);
+    });
+  }
 }
 
 // Initialize app when DOM is ready
@@ -775,6 +906,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.appManager = new AppManager();
     
     console.log('App initialized successfully!');
+
+    // Force icon initialization with multiple attempts
+    window.appManager.ensureLucideIcons();
   } catch (error) {
     console.error('Error initializing app:', error);
   }

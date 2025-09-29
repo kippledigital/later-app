@@ -639,9 +639,14 @@
                   <p id="greeting" class="text-[28px] md:text-[32px] leading-tight tracking-tight font-semibold text-slate-100"></p>
                   <p id="contextSub" class="text-sm text-slate-400 mt-1"></p>
                 </div>
-                <button id="insightsBtn" class="ml-4 p-2 rounded-lg bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-all duration-300 group opacity-0 translate-y-1 animation-delay-500" style="animation: fadeInUp 0.6s ease-out 0.5s forwards;">
-                  <i data-lucide="brain" class="w-4 h-4 text-slate-400 group-hover:text-cyan-300 transition-colors"></i>
-                </button>
+                <div class="ml-4 flex items-center gap-2">
+                  <button id="quickCaptureBtn" class="p-2 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 ring-1 ring-cyan-500/25 transition-all duration-300 group opacity-0 translate-y-1 animation-delay-300" style="animation: fadeInUp 0.6s ease-out 0.3s forwards;">
+                    <i data-lucide="plus" class="w-4 h-4 text-cyan-300 group-hover:text-cyan-200 transition-colors"></i>
+                  </button>
+                  <button id="insightsBtn" class="p-2 rounded-lg bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition-all duration-300 group opacity-0 translate-y-1 animation-delay-500" style="animation: fadeInUp 0.6s ease-out 0.5s forwards;">
+                    <i data-lucide="brain" class="w-4 h-4 text-slate-400 group-hover:text-cyan-300 transition-colors"></i>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -685,63 +690,7 @@
                 <button data-nav="inbox" class="text-[13px] text-cyan-300 hover:text-cyan-200 hover:underline">See All</button>
               </div>
               <div class="space-y-3" id="attentionCards">
-                <!-- Email Card -->
-                <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
-                  <div class="flex items-start gap-3">
-                    <div class="shrink-0 mt-0.5">
-                      <div class="w-8 h-8 rounded-md bg-slate-900 ring-1 ring-white/10 flex items-center justify-center">
-                        <i data-lucide="mail" class="w-4 h-4 text-slate-300"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Action</span>
-                        <span class="text-[11px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>2 min reply</span>
-                      </div>
-                      <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">School update: Field trip forms due</h3>
-                      <p class="text-[13px] text-slate-400 line-clamp-2">The 5th grade trip is scheduled for next Friday. Please complete the attached consent form by Wednesday morning.</p>
-                      <div class="mt-3 flex items-center gap-2">
-                        <button class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 ring-1 ring-cyan-500/25 transition-colors">
-                          <i data-lucide="reply" class="w-4 h-4"></i>
-                          Reply
-                        </button>
-                        <button class="now-archive-btn inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
-                          <i data-lucide="archive" class="w-4 h-4"></i>
-                          Archive
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-
-                <!-- Event Card -->
-                <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
-                  <div class="flex items-start gap-3">
-                    <div class="shrink-0 mt-0.5">
-                      <div class="w-8 h-8 rounded-md bg-slate-900 ring-1 ring-white/10 flex items-center justify-center">
-                        <i data-lucide="calendar" class="w-4 h-4 text-slate-300"></i>
-                      </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Event</span>
-                        <span class="text-[11px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>Starts Thu 3:30 PM</span>
-                      </div>
-                      <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">Dentist appointment</h3>
-                      <p class="text-[13px] text-slate-400 line-clamp-2">Routine cleaning at Riverside Dental. Bring insurance card and previous X-rays.</p>
-                      <div class="mt-3 flex items-center gap-2">
-                        <button class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 ring-1 ring-cyan-500/25 transition-colors">
-                          <i data-lucide="calendar-plus" class="w-4 h-4"></i>
-                          Add to Calendar
-                        </button>
-                        <button class="now-done-btn inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
-                          <i data-lucide="check" class="w-4 h-4"></i>
-                          Done
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </article>
+                <!-- Cards will be dynamically rendered here -->
               </div>
             </div>
 
@@ -755,77 +704,7 @@
                 <button data-nav="library" class="text-[13px] text-cyan-300 hover:text-cyan-200 hover:underline">See All</button>
               </div>
               <div class="space-y-3" id="readingCards">
-                <!-- Article 1 -->
-                <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
-                  <div class="flex items-start gap-3">
-                    <img data-src="https://images.unsplash.com/photo-1496080174650-637e3f22fa03?q=80&w=400&auto=format&fit=crop" alt="Books and coffee" class="w-14 h-14 rounded-md object-cover ring-1 ring-white/10" loading="lazy">
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Read Later</span>
-                        <span class="text-[11px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>5 min read</span>
-                        <span class="text-[11px] text-slate-500">40% through</span>
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/20 flex items-center gap-1">
-                          <i data-lucide="zap" class="w-3 h-3"></i>
-                          AI Summary
-                        </span>
-                      </div>
-                      <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">The Art of Calm Technology</h3>
-                      <p class="text-[13px] text-slate-400 line-clamp-2">A gentle guide to building routines that stick, without the guilt or pressure of rigid schedules.</p>
-                      <!-- TLDR Preview -->
-                      <div class="mt-2 p-2 rounded-md bg-emerald-500/5 ring-1 ring-emerald-500/10">
-                        <div class="flex items-start gap-2">
-                          <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-300 mt-0.5 shrink-0"></i>
-                          <div class="flex-1 min-w-0">
-                            <span class="text-[11px] text-emerald-300 font-medium">TL;DR</span>
-                            <p class="text-[12px] text-slate-300 leading-relaxed line-clamp-2">A thoughtful exploration of building sustainable habits that focuses on consistency over perfection, emphasizing gentle progress and self-compassion.</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="mt-3 flex items-center gap-2">
-                        <button class="read-btn inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 ring-1 ring-cyan-500/25 transition-colors">
-                          <i data-lucide="book-open" class="w-4 h-4"></i>
-                          Read
-                        </button>
-                        <button class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
-                          <i data-lucide="bookmark" class="w-4 h-4"></i>
-                          Save
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-
-                <!-- Article 2 -->
-                <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
-                  <div class="flex items-start gap-3">
-                    <img data-src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=400&auto=format&fit=crop" alt="Laptop and desk" class="w-14 h-14 rounded-md object-cover ring-1 ring-white/10" loading="lazy">
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Read Later</span>
-                        <span class="text-[11px] text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>7 min read</span>
-                        <span class="text-[11px] text-slate-500">12% through</span>
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-300 ring-1 ring-amber-400/20 flex items-center gap-1">
-                          <i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i>
-                          Analyzing...
-                        </span>
-                      </div>
-                      <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">Designing for calm technology</h3>
-                      <p class="text-[13px] text-slate-400 line-clamp-2">Principles to create interfaces that respect attention and blend into daily life.</p>
-                      <div class="mt-3 flex items-center gap-2">
-                        <button class="read-btn inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 ring-1 ring-cyan-500/25 transition-colors">
-                          <i data-lucide="book-open" class="w-4 h-4"></i>
-                          Read
-                        </button>
-                        <button class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
-                          <i data-lucide="bookmark" class="w-4 h-4"></i>
-                          Save
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </div>
-              <!-- Empty state: Continue Reading -->
+                <!-- Cards will be dynamically rendered here -->
               <div id="emptyReading" class="hidden mt-3">
                 <div class="rounded-xl bg-white/5 ring-1 ring-white/10 p-4">
                   <div class="flex items-center gap-2 mb-1.5">
@@ -847,47 +726,7 @@
                 <button data-nav="library" class="text-[13px] text-cyan-300 hover:text-cyan-200 hover:underline">See All</button>
               </div>
               <div class="grid grid-cols-1 gap-3" id="exploreCards">
-                <article class="rounded-xl bg-gradient-to-br from-white/5 to-white/[0.03] ring-1 ring-white/10 p-3 transition-all duration-300">
-                  <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-md bg-slate-900 ring-1 ring-white/10 flex items-center justify-center">
-                      <i data-lucide="lightbulb" class="w-4 h-4 text-slate-300"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Idea</span>
-                        <span class="text-[11px] text-slate-400">Saved yesterday</span>
-                      </div>
-                      <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">Cozy reading nook inspiration</h3>
-                      <p class="text-[13px] text-slate-400 line-clamp-2">Soft light, low chair, and a small shelf — sketches and links for a corner that invites quiet focus.</p>
-                      <div class="mt-3">
-                        <button class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
-                          <i data-lucide="folder-plus" class="w-4 h-4"></i>
-                          Add to Collection
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-
-                <article class="rounded-xl bg-white/5 ring-1 ring-white/10 p-3 transition-all duration-300">
-                  <div class="flex items-start gap-3">
-                    <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=400&auto=format&fit=crop" alt="Code on a screen" class="w-14 h-14 rounded-md object-cover ring-1 ring-white/10">
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-cyan-400/10 text-cyan-300 ring-1 ring-cyan-400/20">Inspiration</span>
-                        <span class="text-[11px] text-slate-400">Saved 3 days ago</span>
-                      </div>
-                      <h3 class="text-[15px] font-medium tracking-tight text-slate-100 truncate">Interfaces with soul</h3>
-                      <p class="text-[13px] text-slate-400 line-clamp-2">Beautifully simple patterns that foster presence and curiosity.</p>
-                      <div class="mt-3">
-                        <button class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 ring-1 ring-white/10 transition-colors">
-                          <i data-lucide="eye" class="w-4 h-4"></i>
-                          Open
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </article>
+                <!-- Cards will be dynamically rendered here -->
               </div>
               <!-- Empty state: Explore -->
               <div id="emptyExplore" class="hidden mt-3">

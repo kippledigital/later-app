@@ -33,11 +33,19 @@ class ItemManager {
     }
   }
 
-  // Initialize Lucide icons
+  // Initialize Lucide icons with aggressive retry
   initializeLucideIcons() {
     try {
       if (typeof lucide !== 'undefined') {
         lucide.createIcons();
+        console.log('ItemManager: Lucide icons refreshed');
+
+        // Also refresh global app icons
+        if (window.appManager && window.appManager.ensureLucideIcons) {
+          setTimeout(() => {
+            window.appManager.ensureLucideIcons();
+          }, 50);
+        }
       }
     } catch (error) {
       console.warn('Lucide icons initialization failed:', error);
