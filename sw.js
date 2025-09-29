@@ -120,6 +120,17 @@ self.addEventListener('sync', event => {
   }
 });
 
+// Handle messages from the client (e.g., to activate updates immediately)
+self.addEventListener('message', event => {
+  try {
+    if (event && event.data && event.data.type === 'SKIP_WAITING') {
+      self.skipWaiting();
+    }
+  } catch (e) {
+    // no-op
+  }
+});
+
 // Push notifications for reminders
 self.addEventListener('push', event => {
   if (event.data) {

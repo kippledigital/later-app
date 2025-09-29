@@ -66,6 +66,11 @@ class DataManager {
     this.items.unshift(baseItem);
     this.saveItems();
 
+    // Attempt remote sync
+    if (window.supabaseManager) {
+      window.supabaseManager.enqueueAndSync(baseItem);
+    }
+
     // Track item creation for insights
     if (window.insightsTracker) {
       window.insightsTracker.trackItemAdded(baseItem);
@@ -171,6 +176,11 @@ class DataManager {
       item.state = newState;
       this.saveItems();
 
+      // Sync change
+      if (window.supabaseManager) {
+        window.supabaseManager.enqueueAndSync(item);
+      }
+
       // Track state changes for insights
       if (window.insightsTracker) {
         window.insightsTracker.trackItemStateChange(item, oldState, newState);
@@ -187,6 +197,9 @@ class DataManager {
     if (item) {
       item.category = category;
       this.saveItems();
+      if (window.supabaseManager) {
+        window.supabaseManager.enqueueAndSync(item);
+      }
       return true;
     }
     return false;
@@ -199,6 +212,9 @@ class DataManager {
       const oldProgress = item.progress;
       item.progress = Math.max(0, Math.min(1, progress));
       this.saveItems();
+      if (window.supabaseManager) {
+        window.supabaseManager.enqueueAndSync(item);
+      }
 
       // Track reading progress for insights
       if (window.insightsTracker) {
@@ -214,8 +230,13 @@ class DataManager {
   deleteItem(id) {
     const index = this.items.findIndex(item => item.id === id);
     if (index !== -1) {
-      this.items.splice(index, 1);
+      const [removed] = this.items.splice(index, 1);
       this.saveItems();
+
+      // Remote delete (best-effort)
+      if (window.supabaseManager && removed) {
+        window.supabaseManager.deleteRemote(removed.id);
+      }
       return true;
     }
     return false;
@@ -237,6 +258,9 @@ class DataManager {
     if (item) {
       Object.assign(item, updates);
       this.saveItems();
+      if (window.supabaseManager) {
+        window.supabaseManager.enqueueAndSync(item);
+      }
       return true;
     }
     return false;
@@ -250,6 +274,9 @@ class DataManager {
       item.hasSummary = !!summaryData.summary;
       item.readingTime = summaryData.readingTime;
       this.saveItems();
+      if (window.supabaseManager) {
+        window.supabaseManager.enqueueAndSync(item);
+      }
       return true;
     }
     return false;
@@ -373,6 +400,9 @@ class DataManager {
       item.state = 'library';
       item.updatedAt = new Date().toISOString();
       this.saveItems();
+      if (window.supabaseManager) {
+        window.supabaseManager.enqueueAndSync(item);
+      }
       return true;
     }
     return false;
@@ -386,6 +416,9 @@ class DataManager {
       item.typeData.rsvpNeeded = false;
       item.updatedAt = new Date().toISOString();
       this.saveItems();
+      if (window.supabaseManager) {
+        window.supabaseManager.enqueueAndSync(item);
+      }
       return true;
     }
     return false;
@@ -399,6 +432,9 @@ class DataManager {
       item.state = 'library';
       item.updatedAt = new Date().toISOString();
       this.saveItems();
+      if (window.supabaseManager) {
+        window.supabaseManager.enqueueAndSync(item);
+      }
       return true;
     }
     return false;
