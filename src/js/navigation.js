@@ -132,10 +132,28 @@ class NavigationManager {
         }
         break;
     }
+
+    // Broadcast screen-changed event for analytics/insights
+    try {
+      document.dispatchEvent(new CustomEvent('screen-changed', { detail: { screen: screenName } }));
+    } catch (e) {
+      // no-op
+    }
   }
 
   getCurrentScreen() {
     return this.currentScreen;
+  }
+
+  // Helper: refresh the active screen without altering history
+  refreshCurrentScreen() {
+    this.onScreenChange(this.currentScreen || 'now');
+  }
+
+  // Helper: switch to a tab programmatically
+  switchToTab(tab) {
+    if (!tab) return;
+    this.showScreen(tab);
   }
 }
 

@@ -9,6 +9,25 @@ class AppManager {
     this.initializeLucideIcons();
     this.renderAllScreens();
     this.setupGreeting();
+
+    // One-time demo seed if no items exist
+    try {
+      const existingCount = window.dataManager?.getAllItems().length || 0;
+      const seededFlag = localStorage.getItem('later_demo_seeded');
+      if (existingCount === 0 && !seededFlag) {
+        // Prefer enhanced demo if available, otherwise basic
+        if (window.mockDataGenerator?.addMockDataToStorage) {
+          window.mockDataGenerator.addMockDataToStorage();
+        } else {
+          this.addDemoItem();
+        }
+        localStorage.setItem('later_demo_seeded', '1');
+        // Re-render after seeding
+        this.renderAllScreens();
+      }
+    } catch (e) {
+      console.warn('Demo seed skipped:', e);
+    }
   }
 
   setupEventListeners() {
