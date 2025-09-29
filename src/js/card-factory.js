@@ -267,6 +267,7 @@ class CardFactory {
         <i data-lucide="bookmark" class="w-4 h-4"></i>
         Save
       </button>
+      ${this.createKnowledgeConnectionsButton(item)}
     `;
   }
 
@@ -290,6 +291,7 @@ class CardFactory {
         <i data-lucide="archive" class="w-4 h-4"></i>
         Archive
       </button>
+      ${this.createKnowledgeConnectionsButton(item)}
     `;
   }
 
@@ -321,6 +323,7 @@ class CardFactory {
           Directions
         </button>
       ` : ''}
+      ${this.createKnowledgeConnectionsButton(item)}
     `;
   }
 
@@ -344,6 +347,7 @@ class CardFactory {
           Completed
         </span>
       `}
+      ${this.createKnowledgeConnectionsButton(item)}
     `;
   }
 
@@ -411,12 +415,16 @@ class CardFactory {
 
     // Priority: article image > favicon > default icon
     if (item.imageUrl) {
-      return `<img src="${item.imageUrl}"
-                   alt="${item.title || 'Article'}"
-                   class="w-14 h-14 rounded-md object-cover ring-1 ring-white/10"
-                   onload="this.classList.add('loaded')"
-                   onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-              ${this.createImageFallback(item)}`;
+      return `
+        <div class="w-14 h-14 rounded-md relative">
+          <img src="${item.imageUrl}"
+               alt="${item.title || 'Article'}"
+               class="w-14 h-14 rounded-md object-cover ring-1 ring-white/10"
+               onload="this.classList.add('loaded')"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+          ${this.createImageFallback(item)}
+        </div>
+      `;
     }
 
     if (item.favicon) {
@@ -605,6 +613,26 @@ class CardFactory {
     if (!content) return 5;
     const wordCount = content.split(' ').length;
     return Math.max(1, Math.round(wordCount / 200)); // 200 WPM average
+  }
+
+  // Create knowledge connections button if item has connections
+  createKnowledgeConnectionsButton(item) {
+    // Check if knowledge processor is available and item has connections
+    if (!window.knowledgeProcessor) return '';
+
+    const knowledgeData = window.knowledgeProcessor.knowledgeGraph.get(item.id);
+    if (!knowledgeData || !knowledgeData.relationships || knowledgeData.relationships.length === 0) {
+      return '';
+    }
+
+    const connectionCount = knowledgeData.relationships.length;
+    return `
+      <button class="inline-flex items-center gap-1.5 text-[13px] px-2.5 py-1.5 rounded-md bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 ring-1 ring-purple-500/25 transition-colors"
+              data-action="show-connections" data-item-id="${item.id}">
+        <i data-lucide="brain" class="w-4 h-4"></i>
+        ${connectionCount} connections
+      </button>
+    `;
   }
 }
 

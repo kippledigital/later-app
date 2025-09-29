@@ -192,13 +192,18 @@ class AppManager {
   renderLibraryScreen() {
     const libraryItems = window.dataManager.getItems('library');
     const libraryGrid = document.getElementById('libraryGrid');
-    
+
     if (libraryGrid) {
       window.itemManager.renderItems(libraryGrid, libraryItems, 'library');
     }
-    
+
     // Show/hide empty state
     this.toggleEmptyState('libraryEmpty', libraryItems.length === 0);
+
+    // Enhance library with knowledge exploration
+    if (window.knowledgeView) {
+      window.knowledgeView.enhanceLibraryWithKnowledge();
+    }
   }
 
   updateAttentionSection(items) {
@@ -743,6 +748,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.bulkActionsManager = bulkActionsManager;
     window.collectionsManager = collectionsManager;
     window.collectionsView = collectionsView;
+    window.knowledgeProcessor = knowledgeProcessor;
+    window.knowledgeView = knowledgeView;
     
     console.log('Managers created, initializing...');
     
@@ -759,7 +766,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.bulkActionsManager.init();
     window.collectionsManager.init();
     window.collectionsView.init();
-    
+    window.knowledgeProcessor.init();
+    window.knowledgeView.init();
+
     console.log('Managers initialized, creating app...');
     
     // Then initialize the app

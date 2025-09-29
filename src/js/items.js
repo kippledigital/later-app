@@ -33,6 +33,17 @@ class ItemManager {
     }
   }
 
+  // Initialize Lucide icons
+  initializeLucideIcons() {
+    try {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    } catch (error) {
+      console.warn('Lucide icons initialization failed:', error);
+    }
+  }
+
   // Render items in a container
   renderItems(container, items, type = 'library') {
     if (!container) return;
@@ -48,6 +59,9 @@ class ItemManager {
       const itemElement = this.createItemElement(item, type);
       container.appendChild(itemElement);
     });
+
+    // Initialize Lucide icons for newly rendered content
+    this.initializeLucideIcons();
   }
 
   // Create individual item element
@@ -55,7 +69,7 @@ class ItemManager {
     const div = document.createElement('div');
 
     // Use enhanced cards if available
-    if (this.enhancedMode && this.cardFactory && (item.type !== 'article' || type === 'library')) {
+    if (this.enhancedMode && this.cardFactory) {
       return this.createEnhancedItemElement(item, type);
     }
 
@@ -192,6 +206,9 @@ class ItemManager {
       case 'open-email':
         this.openEmailExternal(item);
         break;
+      case 'show-connections':
+        this.showKnowledgeConnections(itemId);
+        break;
       default:
         console.warn(`Unknown action: ${action}`);
     }
@@ -265,6 +282,17 @@ class ItemManager {
     if (item.typeData?.senderEmail) {
       const mailtoUrl = `mailto:${item.typeData.senderEmail}?subject=Re: ${encodeURIComponent(item.typeData.subject)}`;
       window.location.href = mailtoUrl;
+    }
+  }
+
+  showKnowledgeConnections(itemId) {
+    if (window.knowledgeView) {
+      // Dispatch event to show knowledge connections
+      document.dispatchEvent(new CustomEvent('showKnowledgeConnections', {
+        detail: { itemId }
+      }));
+    } else {
+      console.warn('Knowledge view not available');
     }
   }
 
