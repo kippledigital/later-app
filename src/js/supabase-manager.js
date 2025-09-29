@@ -121,6 +121,21 @@ class SupabaseManager {
     }
   }
 
+  async deleteRemote(id) {
+    if (!this.enabled || !this.client) return false;
+    try {
+      const { error } = await this.client.from(this.tableName).delete().eq('id', id);
+      if (error) {
+        console.warn('[Supabase] Delete error:', error.message);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.warn('[Supabase] Delete failed:', e);
+      return false;
+    }
+  }
+
   mapItemToRow(item) {
     return {
       id: item.id,

@@ -882,6 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.knowledgeProcessor = knowledgeProcessor;
     window.knowledgeView = knowledgeView;
     window.supabaseManager = supabaseManager;
+    window.settingsManager = settingsManager;
     
     console.log('Managers created, initializing...');
     
@@ -901,6 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.knowledgeProcessor.init();
     window.knowledgeView.init();
     window.supabaseManager.init();
+    window.settingsManager.init();
 
     console.log('Managers initialized, creating app...');
     
