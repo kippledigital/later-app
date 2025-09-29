@@ -487,6 +487,8 @@ class CardFactory {
 
     const icon = iconMap[item.type] || 'file-text';
 
+    console.log('Creating default icon for:', item.title, 'icon:', icon);
+
     return `
       <div class="w-14 h-14 rounded-md bg-slate-700 ring-1 ring-white/10 flex items-center justify-center">
         <i data-lucide="${icon}" class="w-6 h-6 text-slate-400"></i>

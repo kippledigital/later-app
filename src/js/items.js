@@ -92,6 +92,7 @@ class ItemManager {
   // Create enhanced item element using card factory
   createEnhancedItemElement(item, type) {
     const div = document.createElement('div');
+    console.log('Creating enhanced element for:', item.title, 'type:', item.type, 'hasCardFactory:', !!this.cardFactory);
 
     if (type === 'inbox') {
       // For inbox items, wrap the enhanced card in swipe container
@@ -133,6 +134,11 @@ class ItemManager {
 
     // Setup enhanced event listeners for new action buttons
     this.setupEnhancedEventListeners(div, item);
+
+    // Force icon initialization immediately after content is set
+    setTimeout(() => {
+      this.initializeLucideIcons();
+    }, 0);
 
     return div;
   }
