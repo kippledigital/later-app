@@ -969,10 +969,10 @@ class AppManager {
   }
 }
 
-// Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM loaded, initializing app...');
-  
+// Failsafe initialization function
+function initializeApp() {
+  console.log('Attempting to initialize app...');
+
   try {
     // Make managers globally available
     window.dataManager = dataManager;
@@ -1021,5 +1021,51 @@ document.addEventListener('DOMContentLoaded', () => {
     window.appManager.ensureLucideIcons();
   } catch (error) {
     console.error('Error initializing app:', error);
+    console.error('Stack:', error.stack);
+  }
+}
+
+// Try multiple initialization strategies
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM loaded event fired');
+  initializeApp();
+});
+
+// Also try on window load
+window.addEventListener('load', () => {
+  console.log('Window load event fired');
+  if (!window.appManager) {
+    console.log('App not initialized yet, trying again...');
+    initializeApp();
   }
 });
+
+// Fallback: Try after a delay if still not initialized
+setTimeout(() => {
+  if (!window.appManager) {
+    console.log('App still not initialized after 2s, forcing initialization...');
+    initializeApp();
+  }
+}, 2000);
+
+// Global test function for debugging
+window.testApp = function() {
+  console.log('Testing app status...');
+  console.log('- appManager exists:', !!window.appManager);
+  console.log('- dataManager exists:', !!window.dataManager);
+  console.log('- lucide exists:', !!window.lucide);
+
+  if (window.lucide) {
+    console.log('Forcing icon creation...');
+    lucide.createIcons();
+  }
+
+  if (window.appManager) {
+    console.log('Adding demo content...');
+    window.appManager.addEnhancedDemoItems();
+  } else {
+    console.log('App not initialized!');
+  }
+
+  return 'Test complete - check console for details';
+};
