@@ -10,6 +10,11 @@ class AppManager {
     this.checkForFirstLaunch();
     this.renderAllScreens();
     this.setupGreeting();
+
+    // Ensure icons are initialized after initial render
+    setTimeout(() => {
+      this.ensureLucideIcons();
+    }, 100);
   }
 
   setupEventListeners() {
@@ -33,7 +38,14 @@ class AppManager {
     // Enhanced demo button for new item types
     const addEnhancedDemoBtn = document.getElementById('addEnhancedDemoBtn');
     if (addEnhancedDemoBtn) {
-      addEnhancedDemoBtn.addEventListener('click', () => this.addEnhancedDemoItems());
+      console.log('Setting up Demo+ button listener');
+      addEnhancedDemoBtn.addEventListener('click', (e) => {
+        console.log('Demo+ button clicked');
+        e.preventDefault();
+        this.addEnhancedDemoItems();
+      });
+    } else {
+      console.warn('Demo+ button not found in DOM');
     }
 
     // Search button
@@ -225,6 +237,11 @@ class AppManager {
     this.renderNowScreen();
     this.renderInboxScreen();
     this.renderLibraryScreen();
+
+    // Force icon initialization after all screens are rendered
+    setTimeout(() => {
+      this.ensureLucideIcons();
+    }, 50);
   }
 
   renderNowScreen() {
@@ -707,33 +724,46 @@ class AppManager {
 
   // Add enhanced demo items (emails, events, tasks)
   addEnhancedDemoItems() {
+    console.log('addEnhancedDemoItems called');
     try {
       // Clear all data and add fresh sample content
+      console.log('About to clear localStorage...');
       localStorage.clear();
       console.log('Cleared localStorage for fresh demo');
 
+      // Reset the launch flag
+      localStorage.removeItem('laterApp_hasLaunched');
+
       // Add sample content
+      console.log('Adding sample content...');
       this.addSampleContent();
 
       // Add enhanced demo items if available
       if (window.mockDataGenerator) {
+        console.log('Adding mock data...');
         const mockItems = window.mockDataGenerator.addMockDataToStorage();
         this.showFeedback(`Added fresh sample content + ${mockItems.length} demo items!`, 'success');
       } else {
+        console.log('Mock data generator not available');
         this.showFeedback('Added fresh sample content!', 'success');
       }
 
       // Refresh all screens
+      console.log('Refreshing screens...');
       this.renderAllScreens();
 
       // Ensure icons are rendered
       setTimeout(() => {
+        console.log('Ensuring icons...');
         this.ensureLucideIcons();
       }, 100);
 
+      console.log('Demo+ completed successfully');
+
     } catch (error) {
-      console.error('Error adding enhanced demo items:', error);
-      this.showFeedback('Error adding demo items', 'error');
+      console.error('Error in addEnhancedDemoItems:', error);
+      console.error('Stack trace:', error.stack);
+      this.showFeedback('Error adding demo items: ' + error.message, 'error');
     }
   }
 
